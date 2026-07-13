@@ -1,94 +1,13 @@
-【OFF说明】海鸥Ultimate v18.0 - 终极全面版
-# ★ 2026-07-14 · 海鸥全面重构 (基于v17.2实战验证)
-#
-# ⭐ v18.0 三层防御架构:
-#
-# 【第1层 · 反作弊透传监控】
-#   ✅ 反作弊全大区显式PROXY (nj/sh/gz/bj/tj/cd/hk/sj/sz)
-#   ✅ 反作弊主域名KEYWORD PROXY (anticheat/gamesafe/cschannel/tss/anogs)
-#   ✅ 反作弊心跳端口 10012/10013 PROXY (花瓶实时监控)
-#   ✅ 域名透传 (IPIfNonMatch + UseIP,花瓶能看域名)
-#
-# 【第2层 · 游戏加速】
-#   ✅ 游戏KEYWORD PROXY (pubgmhd/tencentgame/tmgp/gcloud/tplay)
-#   ✅ 大区服务器IP段 PROXY (30+ C段)
-#   ✅ 对战服务器IP段 PROXY (7个精准段)
-#   ✅ 游戏端口全PROXY (5692/33861-63861/40001等)
-#
-# 【第3层 · 上报域名精准封杀】
-#   ✅ 只REJECT明确的上报域名 (log/bugly/beacon/mta/jubao/gm)
-#   ❌ 不REJECT任何IP级规则 (v17.2血泪教训,避免误伤反作弊心跳)
-#   ✅ DnsHost劫持 40+条 双重防御
-#
-# 🎯 v18.0 vs v17.2 新增:
-#   + 支付通道精准PROXY (midas/pay/ipay防止支付走DIRECT断连)
-#   + 语音服务PROXY (gvoice/tencentcloud组队语音)
-#   + CDN精准PROXY (jsdelivr/qcloud/pgcdn)
-#   + 游戏子域名完整覆盖 (broker/proxy/openapi/idip)
-#   + 更多反作弊子域名 (mp.gamesafe/mp.tss/mp.anogs)
-#   + 端口5692/17700补充
-#
-# 配合封包: ai封包v25_3_Safe过检测版.filt (193条)
-# 配合APK: 小月端口_v1.4_强制智能选择.apk
-
+【OFF说明】海鸥Ultimate v17.2 - 修复误伤版 (基于v14.0能显示配置)
 [RoutingRule]
-
-#═══════════════════════════════════════════════════
-# 第1层: 反作弊透传监控 (PROXY, 花瓶实时可见)
-#═══════════════════════════════════════════════════
-
-#---- 反作弊 全大区显式域名 ----
-# nj南京
-DOMAIN,nj.cschannel.anticheatexpert.com,PROXY
-DOMAIN,nj.gamesafe.qq.com,PROXY
-# sj/sh上海
-DOMAIN,sj.cschannel.anticheatexpert.com,PROXY
-DOMAIN,sh.cschannel.anticheatexpert.com,PROXY
-DOMAIN,sh.gamesafe.qq.com,PROXY
-# sz深圳
-DOMAIN,sz.cschannel.anticheatexpert.com,PROXY
-DOMAIN,sz.gamesafe.qq.com,PROXY
-# gz广州
-DOMAIN,gz.cschannel.anticheatexpert.com,PROXY
-DOMAIN,gz.gamesafe.qq.com,PROXY
-# bj北京
-DOMAIN,bj.cschannel.anticheatexpert.com,PROXY
-DOMAIN,bj.gamesafe.qq.com,PROXY
-# tj天津
-DOMAIN,tj.cschannel.anticheatexpert.com,PROXY
-DOMAIN,tj.gamesafe.qq.com,PROXY
-# cd成都
-DOMAIN,cd.cschannel.anticheatexpert.com,PROXY
-DOMAIN,cd.gamesafe.qq.com,PROXY
-# hk香港
-DOMAIN,hk.cschannel.anticheatexpert.com,PROXY
-DOMAIN,hk.gamesafe.qq.com,PROXY
-# 通用主连接
-DOMAIN,cs.mainconn.gamesafe.qq.com,PROXY
-DOMAIN,cs.mbgame.anticheatexpert.com,PROXY
-DOMAIN,cs.mbgame.gamesafe.qq.com,PROXY
-DOMAIN,ipv6.mainconn.anticheatexpert.com,PROXY
-DOMAIN,ipv6.mainconn.gamesafe.qq.com,PROXY
-DOMAIN,cs.gamesafe.qq.com,PROXY
-DOMAIN,gs.gamesafe.qq.com,PROXY
-DOMAIN,gcp.gamesafe.qq.com,PROXY
-DOMAIN,mp.gamesafe.qq.com,PROXY
-DOMAIN,109.244.228.213,PROXY
-
-#═══════════════════════════════════════════════════
-# 第2层: 游戏加速 (PROXY)
-#═══════════════════════════════════════════════════
-
-#---- 游戏核心 KEYWORD ----
+#========== 🟢 游戏核心通信 KEYWORD PROXY ==========
 DOMAIN-KEYWORD,pubgmhd,PROXY
 DOMAIN-KEYWORD,tencentgame,PROXY
 DOMAIN-KEYWORD,tmgp,PROXY
 DOMAIN-KEYWORD,gcloud,PROXY
-DOMAIN-KEYWORD,tplay,PROXY
-DOMAIN-KEYWORD,broker,PROXY
-DOMAIN-KEYWORD,pgcdn,PROXY
+DOMAIN-KEYWORD,broker.tplay,PROXY
 
-#---- 游戏 完整域名 ----
+#========== 🟢 游戏核心通信 完整域名 PROXY ==========
 DOMAIN,pubgmhd.qq.com,PROXY
 DOMAIN,pubgm.qq.com,PROXY
 DOMAIN,pubgmhdrelease.qq.com,PROXY
@@ -100,40 +19,14 @@ DOMAIN,apps.game.qq.com,PROXY
 DOMAIN,pg.qq.com,PROXY
 DOMAIN,cdn.tencentgame.com,PROXY
 DOMAIN,tencentgame.com,PROXY
-DOMAIN,wsd.qq.com,PROXY
-DOMAIN,openapi.tencentyun.com,PROXY
-DOMAIN,openapi.tencentgame.com,PROXY
-DOMAIN,idip.qq.com,PROXY
-
-#---- 支付通道 (关键!断连=付不了钱) ----
 DOMAIN,midas.qq.com,PROXY
 DOMAIN,pay.qq.com,PROXY
 DOMAIN,ipay.qq.com,PROXY
 DOMAIN,payapp.weixin.qq.com,PROXY
-DOMAIN-KEYWORD,midas,PROXY
-DOMAIN-KEYWORD,unipay,PROXY
+DOMAIN,openapi.tencentyun.com,PROXY
+DOMAIN,wsd.qq.com,PROXY
 
-#---- 语音服务 (组队/开黑加速) ----
-DOMAIN-KEYWORD,gvoice,PROXY
-DOMAIN-KEYWORD,tencentcloud,PROXY
-DOMAIN,gvoice-tls.qcloud.com,PROXY
-DOMAIN,gvoice.qq.com,PROXY
-
-#---- CDN加速 ----
-DOMAIN-KEYWORD,qlogo,PROXY
-DOMAIN-KEYWORD,eydata,PROXY
-DOMAIN,down.qq.com,PROXY
-DOMAIN,dl.putdl.com,PROXY
-DOMAIN,dl.tlmedi.com,PROXY
-
-#---- 用户体验 (百度地图等) ----
-DOMAIN-KEYWORD,baidu,PROXY
-
-#═══════════════════════════════════════════════════
-# 第3层: 上报域名精准REJECT (只域名,不动IP)
-#═══════════════════════════════════════════════════
-
-#---- EagleEye日志 ----
+#========== 🔴 EagleEye日志上报 REJECT (域名级,不动IP) ==========
 DOMAIN-KEYWORD,eagleeye,REJECT
 DOMAIN-KEYWORD,transfile,REJECT
 DOMAIN,log.pg.qq.com,REJECT
@@ -142,11 +35,11 @@ DOMAIN,log3.pg.qq.com,REJECT
 DOMAIN,log4.pg.qq.com,REJECT
 DOMAIN,log5.pg.qq.com,REJECT
 
-#---- iedsafe/tersafe ----
+#========== 🔴 iedsafe/tersafe REJECT ==========
 DOMAIN-KEYWORD,iedsafe,REJECT
 DOMAIN-KEYWORD,tersafe,REJECT
 
-#---- 崩溃分析 ----
+#========== 🔴 崩溃分析Bugly/CrashSight REJECT ==========
 DOMAIN-KEYWORD,crashsight,REJECT
 DOMAIN-KEYWORD,bugly,REJECT
 DOMAIN,android.crashsight.qq.com,REJECT
@@ -156,9 +49,7 @@ DOMAIN,rqd.uu.tencent.com,REJECT
 DOMAIN,bugly.qq.com,REJECT
 DOMAIN,rqdstock.qq.com,REJECT
 
-#---- 埋点/追踪/统计 ----
-DOMAIN-KEYWORD,beacon,REJECT
-DOMAIN-KEYWORD,mta.qq,REJECT
+#========== 🔴 埋点/追踪/统计 REJECT ==========
 DOMAIN,h.trace.qq.com,REJECT
 DOMAIN,receiver.tdm.qq.com,REJECT
 DOMAIN,hpjy.itop.qq.com,REJECT
@@ -173,29 +64,41 @@ DOMAIN,oth.str.mdt.qq.com,REJECT
 DOMAIN,ug.qq.com,REJECT
 DOMAIN,hbdatah.pg.qq.com,REJECT
 
-#---- 推送通知 ----
-DOMAIN-KEYWORD,tpns,REJECT
+#========== 🔴 推送通知 REJECT ==========
 DOMAIN,tpns.tencent.com,REJECT
 DOMAIN,access1.tpns.sh.tencent.com,REJECT
 DOMAIN,openapi.tpns.tencent.com,REJECT
 DOMAIN,jjhw.qq.com,REJECT
 DOMAIN,tmeetingnow.qq.com,REJECT
 
-#---- 举报/GM/客服 ----
+#========== 🔴 举报/GM/客服 REJECT ==========
 DOMAIN,gm.qq.com,REJECT
 DOMAIN,kf.qq.com,REJECT
 DOMAIN,jubao.qq.com,REJECT
 DOMAIN,110.qq.com,REJECT
 DOMAIN,jubao.pg.qq.com,REJECT
 DOMAIN,report.pg.qq.com,REJECT
-DOMAIN-KEYWORD,jubao,REJECT
-DOMAIN-KEYWORD,report.qq,REJECT
 
-#═══════════════════════════════════════════════════
-# 游戏后端IP段 PROXY (log实测,精准加速)
-#═══════════════════════════════════════════════════
+# 🚨🚨🚨 v17.2 关键修复 - 以下IP REJECT规则全部删除!
+# 之前老子瞎JB加的"log实测封号IP":
+#   DOMAIN,180.102.211.18,REJECT   ← 实际是nj.cschannel心跳IP!
+#   DOMAIN,101.226.101.163,REJECT  ← 存疑
+#   DOMAIN,182.254.116.117,REJECT  ← 存疑
+#   DOMAIN,182.254.118.119,REJECT  ← 存疑
+#   DOMAIN,101.91.23.12,REJECT     ← 存疑
+#   DOMAIN,101.91.32.32,REJECT     ← 存疑
+#   DOMAIN,101.91.23.166,REJECT    ← 存疑
+# 全部删除,只REJECT明确的上报域名,IP不动
 
-#---- 大区主服务器IP段 ----
+#========== 🟡 内容通道 PROXY ==========
+DOMAIN-KEYWORD,baidu,PROXY
+DOMAIN-KEYWORD,eydata,PROXY
+DOMAIN-KEYWORD,qlogo,PROXY
+DOMAIN,down.qq.com,PROXY
+DOMAIN,dl.putdl.com,PROXY
+DOMAIN,dl.tlmedi.com,PROXY
+
+#========== 🟢 游戏后端IP群 PROXY ==========
 DOMAIN,111.30.169.0/24,PROXY
 DOMAIN,114.221.149.0/24,PROXY
 DOMAIN,117.89.177.167,PROXY
@@ -217,7 +120,7 @@ DOMAIN,59.83.207.176,PROXY
 DOMAIN,60.28.172.70,PROXY
 DOMAIN,60.29.239.218,PROXY
 
-#---- 游戏服务器IP段 ----
+#========== 🟢 游戏服务器IP段 PROXY ==========
 DOMAIN,49.7.72.0/24,PROXY
 DOMAIN,61.151.229.0/24,PROXY
 DOMAIN,139.186.105.0/24,PROXY
@@ -234,7 +137,7 @@ DOMAIN,180.109.156.0/24,PROXY
 DOMAIN,109.244.170.0/24,PROXY
 DOMAIN,111.30.185.0/24,PROXY
 
-#---- 对战服务器IP段 ----
+#========== 🟢 对战服务器IP段 PROXY ==========
 DOMAIN,172.255.0.0/24,PROXY
 DOMAIN,172.255.1.0/24,PROXY
 DOMAIN,14.22.9.0/24,PROXY
@@ -243,24 +146,12 @@ DOMAIN,36.155.240.0/24,PROXY
 DOMAIN,42.81.179.0/24,PROXY
 DOMAIN,81.69.100.0/24,PROXY
 
-#---- 腾讯云备用IP段 (v18.0新增) ----
-DOMAIN,101.32.0.0/16,PROXY
-DOMAIN,101.33.0.0/16,PROXY
-DOMAIN,101.34.0.0/16,PROXY
-DOMAIN,101.35.0.0/16,PROXY
-DOMAIN,101.42.0.0/16,PROXY
-DOMAIN,101.43.0.0/16,PROXY
-DOMAIN,101.44.0.0/16,PROXY
-
-#═══════════════════════════════════════════════════
-# 端口规则 (v18.0精细分类)
-#═══════════════════════════════════════════════════
-
-#---- 反作弊心跳端口 PROXY ----
+#========== 🎯 端口规则 ==========
+# 反作弊心跳端口 PROXY
 PORT,10012,PROXY
 PORT,10013,PROXY
 
-#---- 反作弊/上报端口 PROXY ----
+# 反作弊/上报端口 PROXY
 PORT,10000,PROXY
 PORT,10001,PROXY
 PORT,10002,PROXY
@@ -271,27 +162,19 @@ PORT,10006,PROXY
 PORT,10007,PROXY
 PORT,10008,PROXY
 PORT,10009,PROXY
-PORT,10010,PROXY
-PORT,10011,PROXY
 
-#---- 战斗端口 PROXY ----
+# 战斗端口
 PORT,30001,PROXY
-PORT,30002,PROXY
 PORT,30101,PROXY
-PORT,30102,PROXY
 
-#---- 主UDP游戏端口 PROXY ----
+# 主UDP游戏端口
 PORT,40001,PROXY
-PORT,40002,PROXY
 
-#---- 游戏授权端口 PROXY ----
+# 游戏授权端口
 PORT,31003,PROXY
 
-#---- 游戏服务器端口 PROXY ----
+# 游戏服务器端口
 PORT,5692,PROXY
-PORT,10012,PROXY
-PORT,17700,PROXY
-PORT,17701,PROXY
 PORT,33861,PROXY
 PORT,63861,PROXY
 PORT,23861,PROXY
@@ -303,16 +186,14 @@ PORT,24863,PROXY
 PORT,11762,PROXY
 PORT,65010,PROXY
 
-#---- HTTP/HTTPS PROXY ----
+# HTTP/HTTPS
 PORT,80,PROXY
 PORT,443,PROXY
 
-#---- 游戏大厅 DIRECT加速 ----
+# 游戏大厅
 PORT,17500,DIRECT
 
-#═══════════════════════════════════════════════════
-# 兜底策略
-#═══════════════════════════════════════════════════
+#========== 🎯 兜底策略 ==========
 FINAL,DIRECT
 
 [RoutingDomainStrategy]
@@ -335,29 +216,18 @@ uplinkOnly = 20
 1.1.1.1
 
 [DnsRule]
-# 反作弊 → 阿里DNS (国内解析准确)
 DOMAIN-KEYWORD,anticheatexpert,223.5.5.5
 DOMAIN-KEYWORD,gamesafe,223.5.5.5
 DOMAIN-KEYWORD,cschannel,223.5.5.5
 DOMAIN-KEYWORD,tss,223.5.5.5
 DOMAIN-KEYWORD,anogs,223.5.5.5
-DOMAIN-KEYWORD,tersafe,223.5.5.5
-DOMAIN-KEYWORD,iedsafe,223.5.5.5
-DOMAIN-KEYWORD,turing,223.5.5.5
-
-# 游戏 → DNSPod (腾讯自家,最准)
 DOMAIN-KEYWORD,pubgmhd,119.29.29.29
 DOMAIN-KEYWORD,qq.com,119.29.29.29
 DOMAIN-KEYWORD,tencent,119.29.29.29
 DOMAIN-KEYWORD,tencentgame,119.29.29.29
 DOMAIN-KEYWORD,tmgp,119.29.29.29
 DOMAIN-KEYWORD,gcloud,119.29.29.29
-DOMAIN-KEYWORD,broker,119.29.29.29
-DOMAIN-KEYWORD,tplay,119.29.29.29
-DOMAIN-KEYWORD,gvoice,119.29.29.29
-DOMAIN-KEYWORD,pg.qq,119.29.29.29
-DOMAIN-KEYWORD,midas,119.29.29.29
-DOMAIN-KEYWORD,qcloud,119.29.29.29
+DOMAIN-KEYWORD,broker.tplay,119.29.29.29
 
 [DnsHost]
 # EagleEye日志
@@ -397,7 +267,6 @@ hbdatah.pg.qq.com=127.0.0.1
 tpns.tencent.com=127.0.0.1
 access1.tpns.sh.tencent.com=127.0.0.1
 openapi.tpns.tencent.com=127.0.0.1
-jjhw.qq.com=127.0.0.1
 
 # 举报/客服/GM
 gm.qq.com=127.0.0.1
