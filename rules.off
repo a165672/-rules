@@ -75,14 +75,6 @@ DOMAIN,gcp.gamesafe.qq.com,PROXY
 DOMAIN,mp.gamesafe.qq.com,PROXY
 DOMAIN,109.244.228.213,PROXY
 
-#---- 反作弊 KEYWORD兜底 ----
-DOMAIN-KEYWORD,anticheatexpert,PROXY
-DOMAIN-KEYWORD,gamesafe,PROXY
-DOMAIN-KEYWORD,cschannel,PROXY
-DOMAIN-KEYWORD,tss,PROXY
-DOMAIN-KEYWORD,anogs,PROXY
-DOMAIN-KEYWORD,turing,PROXY
-
 #═══════════════════════════════════════════════════
 # 第2层: 游戏加速 (PROXY)
 #═══════════════════════════════════════════════════
@@ -297,6 +289,7 @@ PORT,31003,PROXY
 
 #---- 游戏服务器端口 PROXY ----
 PORT,5692,PROXY
+PORT,10012,PROXY
 PORT,17700,PROXY
 PORT,17701,PROXY
 PORT,33861,PROXY
