@@ -1,35 +1,63 @@
-【OFF说明】海鸥Ultimate v17.0 - 安全监控版 (花瓶实时可见)
+【OFF说明】海鸥Ultimate v17.1 - 终极优化版 (域名透传+花瓶实时可见)
 # ★ 2026-07-13 · 海鸥全面重构
 #
-# ⭐ v17.0安全版策略 (看得见=心里有底=真安全):
-#   ✅ 反作弊 KEYWORD PROXY (花瓶实时看cschannel/anticheatexpert跳动)
-#   ✅ 反作弊端口10012/10013 PROXY (花瓶看socket心跳数据)
-#   ✅ 游戏对战 PROXY (加速+全流量可监控)
-#   ✅ 上报域名 REJECT + DnsHost双重防御
-#   ✅ 兼容封包v25.3 Safe过检测
+# ⭐ v17.1 核心改进 (对比v17.0):
+#   ✅ FreedomDomainStrategy = AsIs (域名直传CCProxy不解析)
+#   ✅ RoutingDomainStrategy = AsIs (域名规则先行,不做多余DNS)
+#   ✅ 反作弊 KEYWORD + 显式子域名双保险
+#   ✅ nj/sh/gz/bj/hk 全大区反作弊域名显式列表
+#   ✅ 精简DnsRule避免冗余解析
+#   ✅ 端口10012/10013 PROXY (花瓶实时看socket心跳)
 #
-# 🎯 为什么这版才是真安全版:
-#   - 全流量走VPN,花瓶实时监控每一个包
-#   - HIT有任何异常心跳你第一时间看得到
-#   - 有异常立刻切号/停手,而不是等封号才知道
-#   - 反作弊REJECT / DIRECT才叫瞎猜,出了事一问三不知
+# 🎯 花瓶显示域名的完整链路:
+#   手机 → 小月端口(AsIs域名透传) → CCProxy SOCKS5(ATYP=03) → 花瓶抓包看域名
+#
+# ⚠️ 花瓶那边配合:
+#   查看菜单 → 显示主机名 打勾
+#   工具菜单 → 反向DNS查询 开启
 #
 # 配合封包: ai封包v25_3_Safe过检测版.filt (193条)
 
 [RoutingRule]
 
-#========== 🔥 反作弊主域名 PROXY (花瓶专用,抓包看cschannel) ==========
+#========== 🔥 反作弊全大区显式域名 PROXY (花瓶完整可见) ==========
+# nj南京
+DOMAIN,nj.cschannel.anticheatexpert.com,PROXY
+DOMAIN,nj.gamesafe.qq.com,PROXY
+# sh上海
+DOMAIN,sh.cschannel.anticheatexpert.com,PROXY
+DOMAIN,sh.gamesafe.qq.com,PROXY
+# gz广州
+DOMAIN,gz.cschannel.anticheatexpert.com,PROXY
+DOMAIN,gz.gamesafe.qq.com,PROXY
+# bj北京
+DOMAIN,bj.cschannel.anticheatexpert.com,PROXY
+DOMAIN,bj.gamesafe.qq.com,PROXY
+# tj天津
+DOMAIN,tj.cschannel.anticheatexpert.com,PROXY
+DOMAIN,tj.gamesafe.qq.com,PROXY
+# cd成都
+DOMAIN,cd.cschannel.anticheatexpert.com,PROXY
+DOMAIN,cd.gamesafe.qq.com,PROXY
+# hk香港
+DOMAIN,hk.cschannel.anticheatexpert.com,PROXY
+DOMAIN,hk.gamesafe.qq.com,PROXY
+
+#========== 🔥 反作弊主域名 KEYWORD PROXY (兜底,涵盖所有子域名) ==========
 DOMAIN-KEYWORD,anticheatexpert,PROXY
 DOMAIN-KEYWORD,gamesafe,PROXY
 DOMAIN-KEYWORD,cschannel,PROXY
+DOMAIN-KEYWORD,tss,PROXY
+DOMAIN-KEYWORD,anogs,PROXY
 
-#========== 🟢 游戏核心通信 PROXY ==========
+#========== 🟢 游戏核心通信 KEYWORD PROXY ==========
 DOMAIN-KEYWORD,pubgmhd,PROXY
 DOMAIN-KEYWORD,tencentgame,PROXY
 DOMAIN-KEYWORD,tmgp,PROXY
 DOMAIN-KEYWORD,gcloud,PROXY
 DOMAIN-KEYWORD,broker.tplay,PROXY
 
+#========== 🟢 游戏核心通信 完整域名 PROXY ==========
 DOMAIN,pubgmhd.qq.com,PROXY
 DOMAIN,pubgm.qq.com,PROXY
 DOMAIN,pubgmhdrelease.qq.com,PROXY
@@ -110,7 +138,7 @@ DOMAIN,110.qq.com,REJECT
 DOMAIN,jubao.pg.qq.com,REJECT
 DOMAIN,report.pg.qq.com,REJECT
 
-#========== 🟡 关键内容通道 PROXY ==========
+#========== 🟡 内容通道 PROXY ==========
 DOMAIN-KEYWORD,baidu,PROXY
 DOMAIN-KEYWORD,eydata,PROXY
 DOMAIN-KEYWORD,qlogo,PROXY
@@ -167,11 +195,11 @@ DOMAIN,42.81.179.0/24,PROXY
 DOMAIN,81.69.100.0/24,PROXY
 
 #========== 🎯 端口规则 ==========
-# 反作弊心跳端口 PROXY (花瓶专用,看socket://xxx:10012)
+# 反作弊心跳端口 PROXY (花瓶看socket心跳)
 PORT,10012,PROXY
 PORT,10013,PROXY
 
-# 反作弊/上报端口 PROXY (走VPN)
+# 反作弊/上报端口 PROXY
 PORT,10000,PROXY
 PORT,10001,PROXY
 PORT,10002,PROXY
@@ -210,17 +238,17 @@ PORT,65010,PROXY
 PORT,80,PROXY
 PORT,443,PROXY
 
-# 游戏大厅 DIRECT加速
+# 游戏大厅
 PORT,17500,DIRECT
 
 #========== 🎯 兜底策略 ==========
 FINAL,DIRECT
 
 [RoutingDomainStrategy]
-IPIfNonMatch
+AsIs
 
 [FreedomDomainStrategy]
-UseIP
+AsIs
 
 [LocalPolicy]
 bufferSize = 32768
@@ -236,20 +264,6 @@ uplinkOnly = 20
 1.1.1.1
 
 [DnsRule]
-# 反作弊 → 阿里DNS
-DOMAIN-KEYWORD,anticheatexpert,223.5.5.5
-DOMAIN-KEYWORD,gamesafe,223.5.5.5
-DOMAIN-KEYWORD,cschannel,223.5.5.5
-DOMAIN-KEYWORD,tersafe,223.5.5.5
-DOMAIN-KEYWORD,iedsafe,223.5.5.5
-# 游戏 → DNSPod
-DOMAIN-KEYWORD,pubgmhd,119.29.29.29
-DOMAIN-KEYWORD,qq.com,119.29.29.29
-DOMAIN-KEYWORD,tencent,119.29.29.29
-DOMAIN-KEYWORD,tencentgame,119.29.29.29
-DOMAIN-KEYWORD,gcloud,119.29.29.29
-DOMAIN-KEYWORD,tmgp,119.29.29.29
-DOMAIN-KEYWORD,broker.tplay,119.29.29.29
 
 [DnsHost]
 # EagleEye日志
