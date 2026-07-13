@@ -1,32 +1,43 @@
-【OFF说明】海鸥Ultimate v17.1 - 终极优化版 (域名透传+花瓶实时可见)
-# ★ 2026-07-13 · 海鸥全面重构
+【OFF说明】海鸥Ultimate v17.2 - 修复误伤版 (反作弊IP不再误伤)
+# ★ 2026-07-13 · 海鸥修复关键BUG
 #
-# ⭐ v17.1 核心改进 (对比v17.0):
-#   ✅ FreedomDomainStrategy = AsIs (域名直传CCProxy不解析)
-#   ✅ RoutingDomainStrategy = AsIs (域名规则先行,不做多余DNS)
-#   ✅ 反作弊 KEYWORD + 显式子域名双保险
-#   ✅ nj/sh/gz/bj/hk 全大区反作弊域名显式列表
-#   ✅ 精简DnsRule避免冗余解析
-#   ✅ 端口10012/10013 PROXY (花瓶实时看socket心跳)
+# 🔥 v17.2 关键修复:
+#   ❌ 删除 DOMAIN,180.102.211.18,REJECT (nj.cschannel心跳IP,误伤!)
+#   ❌ 删除 DOMAIN,101.226.101.163,REJECT (存疑,可能是心跳IP)
+#   ❌ 删除 DOMAIN,182.254.116.117,REJECT (存疑)
+#   ❌ 删除 DOMAIN,182.254.118.119,REJECT (存疑)
+#   ❌ 删除 DOMAIN,101.91.23.12,REJECT   (存疑)
+#   ❌ 删除 DOMAIN,101.91.32.32,REJECT   (存疑)
+#   ❌ 删除 DOMAIN,101.91.23.166,REJECT  (存疑)
 #
-# 🎯 花瓶显示域名的完整链路:
-#   手机 → 小月端口(AsIs域名透传) → CCProxy SOCKS5(ATYP=03) → 花瓶抓包看域名
+# 🎯 血泪教训:
+#   "log实测封号IP" 这个标签是老子当年自己贴的,没做交叉验证
+#   花瓶截图证实 180.102.211.18 就是反作弊心跳IP
+#   宁可少REJECT几个存疑IP,也不能误伤反作弊心跳
+#   → 只用DOMAIN关键词/上报域名REJECT,IP层不动
 #
-# ⚠️ 花瓶那边配合:
-#   查看菜单 → 显示主机名 打勾
-#   工具菜单 → 反向DNS查询 开启
+# 🎯 v17.2策略:
+#   ✅ 反作弊 KEYWORD PROXY (花瓶实时可见)
+#   ✅ 反作弊 全大区显式PROXY (nj/sh/gz/bj/tj/cd/hk)
+#   ✅ 上报域名 REJECT + DnsHost双重防御 (只REJECT明确的上报域名)
+#   ✅ AsIs域名透传 (花瓶看域名不是IP)
+#   ❌ 不再REJECT任何IP级别的规则 (避免误伤反作弊心跳)
 #
 # 配合封包: ai封包v25_3_Safe过检测版.filt (193条)
 
 [RoutingRule]
 
-#========== 🔥 反作弊全大区显式域名 PROXY (花瓶完整可见) ==========
+#========== 🔥 反作弊全大区显式域名 PROXY ==========
 # nj南京
 DOMAIN,nj.cschannel.anticheatexpert.com,PROXY
 DOMAIN,nj.gamesafe.qq.com,PROXY
-# sh上海
+# sj/sh上海
+DOMAIN,sj.cschannel.anticheatexpert.com,PROXY
 DOMAIN,sh.cschannel.anticheatexpert.com,PROXY
 DOMAIN,sh.gamesafe.qq.com,PROXY
+# sz深圳
+DOMAIN,sz.cschannel.anticheatexpert.com,PROXY
+DOMAIN,sz.gamesafe.qq.com,PROXY
 # gz广州
 DOMAIN,gz.cschannel.anticheatexpert.com,PROXY
 DOMAIN,gz.gamesafe.qq.com,PROXY
@@ -42,8 +53,18 @@ DOMAIN,cd.gamesafe.qq.com,PROXY
 # hk香港
 DOMAIN,hk.cschannel.anticheatexpert.com,PROXY
 DOMAIN,hk.gamesafe.qq.com,PROXY
+# 通用主连接
+DOMAIN,cs.mainconn.gamesafe.qq.com,PROXY
+DOMAIN,cs.mbgame.anticheatexpert.com,PROXY
+DOMAIN,cs.mbgame.gamesafe.qq.com,PROXY
+DOMAIN,ipv6.mainconn.anticheatexpert.com,PROXY
+DOMAIN,ipv6.mainconn.gamesafe.qq.com,PROXY
+DOMAIN,cs.gamesafe.qq.com,PROXY
+DOMAIN,gs.gamesafe.qq.com,PROXY
+DOMAIN,gcp.gamesafe.qq.com,PROXY
+DOMAIN,109.244.228.213,PROXY
 
-#========== 🔥 反作弊主域名 KEYWORD PROXY (兜底,涵盖所有子域名) ==========
+#========== 🔥 反作弊主域名 KEYWORD PROXY (兜底所有子域名) ==========
 DOMAIN-KEYWORD,anticheatexpert,PROXY
 DOMAIN-KEYWORD,gamesafe,PROXY
 DOMAIN-KEYWORD,cschannel,PROXY
@@ -76,16 +97,7 @@ DOMAIN,payapp.weixin.qq.com,PROXY
 DOMAIN,openapi.tencentyun.com,PROXY
 DOMAIN,wsd.qq.com,PROXY
 
-#========== 🔴 log实测HIT封号IP (精准REJECT) ==========
-DOMAIN,101.226.101.163,REJECT
-DOMAIN,182.254.116.117,REJECT
-DOMAIN,182.254.118.119,REJECT
-DOMAIN,180.102.211.18,REJECT
-DOMAIN,101.91.23.12,REJECT
-DOMAIN,101.91.32.32,REJECT
-DOMAIN,101.91.23.166,REJECT
-
-#========== 🔴 EagleEye日志上报 REJECT ==========
+#========== 🔴 EagleEye日志上报 REJECT (域名级,不动IP) ==========
 DOMAIN-KEYWORD,eagleeye,REJECT
 DOMAIN-KEYWORD,transfile,REJECT
 DOMAIN,log.pg.qq.com,REJECT
@@ -138,6 +150,17 @@ DOMAIN,110.qq.com,REJECT
 DOMAIN,jubao.pg.qq.com,REJECT
 DOMAIN,report.pg.qq.com,REJECT
 
+# 🚨🚨🚨 v17.2 关键修复 - 以下IP REJECT规则全部删除!
+# 之前老子瞎JB加的"log实测封号IP":
+#   DOMAIN,180.102.211.18,REJECT   ← 实际是nj.cschannel心跳IP!
+#   DOMAIN,101.226.101.163,REJECT  ← 存疑
+#   DOMAIN,182.254.116.117,REJECT  ← 存疑
+#   DOMAIN,182.254.118.119,REJECT  ← 存疑
+#   DOMAIN,101.91.23.12,REJECT     ← 存疑
+#   DOMAIN,101.91.32.32,REJECT     ← 存疑
+#   DOMAIN,101.91.23.166,REJECT    ← 存疑
+# 全部删除,只REJECT明确的上报域名,IP不动
+
 #========== 🟡 内容通道 PROXY ==========
 DOMAIN-KEYWORD,baidu,PROXY
 DOMAIN-KEYWORD,eydata,PROXY
@@ -146,7 +169,7 @@ DOMAIN,down.qq.com,PROXY
 DOMAIN,dl.putdl.com,PROXY
 DOMAIN,dl.tlmedi.com,PROXY
 
-#========== 🟢 log实测游戏后端IP群 PROXY ==========
+#========== 🟢 游戏后端IP群 PROXY ==========
 DOMAIN,111.30.169.0/24,PROXY
 DOMAIN,114.221.149.0/24,PROXY
 DOMAIN,117.89.177.167,PROXY
@@ -185,7 +208,7 @@ DOMAIN,180.109.156.0/24,PROXY
 DOMAIN,109.244.170.0/24,PROXY
 DOMAIN,111.30.185.0/24,PROXY
 
-#========== 🟢 log实测对战服务器IP段 PROXY ==========
+#========== 🟢 对战服务器IP段 PROXY ==========
 DOMAIN,172.255.0.0/24,PROXY
 DOMAIN,172.255.1.0/24,PROXY
 DOMAIN,14.22.9.0/24,PROXY
@@ -195,7 +218,7 @@ DOMAIN,42.81.179.0/24,PROXY
 DOMAIN,81.69.100.0/24,PROXY
 
 #========== 🎯 端口规则 ==========
-# 反作弊心跳端口 PROXY (花瓶看socket心跳)
+# 反作弊心跳端口 PROXY
 PORT,10012,PROXY
 PORT,10013,PROXY
 
@@ -211,17 +234,17 @@ PORT,10007,PROXY
 PORT,10008,PROXY
 PORT,10009,PROXY
 
-# 战斗端口 PROXY
+# 战斗端口
 PORT,30001,PROXY
 PORT,30101,PROXY
 
-# 主UDP游戏端口 PROXY
+# 主UDP游戏端口
 PORT,40001,PROXY
 
-# 游戏授权端口 PROXY
+# 游戏授权端口
 PORT,31003,PROXY
 
-# 游戏服务器端口 PROXY
+# 游戏服务器端口
 PORT,5692,PROXY
 PORT,33861,PROXY
 PORT,63861,PROXY
@@ -234,7 +257,7 @@ PORT,24863,PROXY
 PORT,11762,PROXY
 PORT,65010,PROXY
 
-# HTTP/HTTPS PROXY
+# HTTP/HTTPS
 PORT,80,PROXY
 PORT,443,PROXY
 
