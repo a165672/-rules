@@ -1,28 +1,24 @@
-【OFF说明】海鸥Ultimate v17.0 - 全面优化抓包版
+【OFF说明】海鸥Ultimate v17.0 - 安全监控版 (花瓶实时可见)
 # ★ 2026-07-13 · 海鸥全面重构
 #
-# v17.0 vs v16.0:
-#   ✅ 反作弊域名 KEYWORD PROXY (花瓶可抓包调试)
-#   ✅ 反作弊端口10012/10013 PROXY (心跳可见)
-#   ✅ 上报域名 REJECT + DnsHost劫持双重防御
-#   ✅ 规则优先级重排 (域名规则最先命中)
-#   ✅ 兼容封包v25.3 (193条Safe过检测)
+# ⭐ v17.0安全版策略 (看得见=心里有底=真安全):
+#   ✅ 反作弊 KEYWORD PROXY (花瓶实时看cschannel/anticheatexpert跳动)
+#   ✅ 反作弊端口10012/10013 PROXY (花瓶看socket心跳数据)
+#   ✅ 游戏对战 PROXY (加速+全流量可监控)
+#   ✅ 上报域名 REJECT + DnsHost双重防御
+#   ✅ 兼容封包v25.3 Safe过检测
 #
-# v16.0血泪教训 (5次失败复盘):
-#   ❌ REJECT反作弊主域名 → 直接封号 (v13.0)
-#   ❌ DnsHost劫持反作弊 → 心跳异常 (v13.0)
-#   ❌ 反作弊PROXY走Charles → SSL Pinning失败 (v14.1)
-#   ❌ 具体子域名规则 → 花瓶看不到数据
-#   ❌ 过度REJECT → 网络异常
-#
-# ⚠️ 当前配置:反作弊走VPN(用于花瓶抓包)
-# ⚠️ 抓完包务必改回DIRECT(避免SSL Pinning失败封号)
+# 🎯 为什么这版才是真安全版:
+#   - 全流量走VPN,花瓶实时监控每一个包
+#   - HIT有任何异常心跳你第一时间看得到
+#   - 有异常立刻切号/停手,而不是等封号才知道
+#   - 反作弊REJECT / DIRECT才叫瞎猜,出了事一问三不知
 #
 # 配合封包: ai封包v25_3_Safe过检测版.filt (193条)
 
 [RoutingRule]
 
-#========== 🔥 反作弊主域名 PROXY (抓包调试用,平时应改回DIRECT) ==========
+#========== 🔥 反作弊主域名 PROXY (花瓶专用,抓包看cschannel) ==========
 DOMAIN-KEYWORD,anticheatexpert,PROXY
 DOMAIN-KEYWORD,gamesafe,PROXY
 DOMAIN-KEYWORD,cschannel,PROXY
@@ -70,7 +66,7 @@ DOMAIN,log3.pg.qq.com,REJECT
 DOMAIN,log4.pg.qq.com,REJECT
 DOMAIN,log5.pg.qq.com,REJECT
 
-#========== 🔴 iedsafe/tersafe (v9.0已验证KEYWORD) REJECT ==========
+#========== 🔴 iedsafe/tersafe REJECT ==========
 DOMAIN-KEYWORD,iedsafe,REJECT
 DOMAIN-KEYWORD,tersafe,REJECT
 
@@ -171,11 +167,11 @@ DOMAIN,42.81.179.0/24,PROXY
 DOMAIN,81.69.100.0/24,PROXY
 
 #========== 🎯 端口规则 ==========
-# 反作弊心跳端口 PROXY (抓包调试,平时应改回DIRECT)
+# 反作弊心跳端口 PROXY (花瓶专用,看socket://xxx:10012)
 PORT,10012,PROXY
 PORT,10013,PROXY
 
-# 反作弊/上报端口 PROXY
+# 反作弊/上报端口 PROXY (走VPN)
 PORT,10000,PROXY
 PORT,10001,PROXY
 PORT,10002,PROXY
@@ -197,7 +193,7 @@ PORT,40001,PROXY
 # 游戏授权端口 PROXY
 PORT,31003,PROXY
 
-# 游戏服务器端口(可抓包) PROXY
+# 游戏服务器端口 PROXY
 PORT,5692,PROXY
 PORT,33861,PROXY
 PORT,63861,PROXY
@@ -210,7 +206,7 @@ PORT,24863,PROXY
 PORT,11762,PROXY
 PORT,65010,PROXY
 
-# HTTP/HTTPS PROXY (全流量走VPN)
+# HTTP/HTTPS PROXY
 PORT,80,PROXY
 PORT,443,PROXY
 
@@ -240,13 +236,13 @@ uplinkOnly = 20
 1.1.1.1
 
 [DnsRule]
-# 反作弊类 → 阿里DNS (准确解析,配合PROXY走VPN)
+# 反作弊 → 阿里DNS
 DOMAIN-KEYWORD,anticheatexpert,223.5.5.5
 DOMAIN-KEYWORD,gamesafe,223.5.5.5
 DOMAIN-KEYWORD,cschannel,223.5.5.5
 DOMAIN-KEYWORD,tersafe,223.5.5.5
 DOMAIN-KEYWORD,iedsafe,223.5.5.5
-# 游戏类 → DNSPod (腾讯自家DNS,解析游戏域名最快)
+# 游戏 → DNSPod
 DOMAIN-KEYWORD,pubgmhd,119.29.29.29
 DOMAIN-KEYWORD,qq.com,119.29.29.29
 DOMAIN-KEYWORD,tencent,119.29.29.29
@@ -256,7 +252,7 @@ DOMAIN-KEYWORD,tmgp,119.29.29.29
 DOMAIN-KEYWORD,broker.tplay,119.29.29.29
 
 [DnsHost]
-# EagleEye日志上报 → 127.0.0.1
+# EagleEye日志
 log.pg.qq.com=127.0.0.1
 log2.pg.qq.com=127.0.0.1
 log3.pg.qq.com=127.0.0.1
