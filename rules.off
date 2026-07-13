@@ -1,25 +1,28 @@
-【OFF说明】海鸥Ultimate v16.0 - 终极稳定版
-# ★ 一次性优化到位, 不再改!
+【OFF说明】海鸥Ultimate v17.0 - 全面优化抓包版
+# ★ 2026-07-13 · 海鸥全面重构
 #
-# 血泪教训 (5次失败复盘):
-#   ❌ REJECT反作弊主域名 → 直接封号 (v13.0教训)
-#   ❌ DnsHost劫持反作弊 → 心跳异常 (v13.0教训)
-#   ❌ 反作弊PROXY走Charles → SSL Pinning失败 (v14.1教训)
+# v17.0 vs v16.0:
+#   ✅ 反作弊域名 KEYWORD PROXY (花瓶可抓包调试)
+#   ✅ 反作弊端口10012/10013 PROXY (心跳可见)
+#   ✅ 上报域名 REJECT + DnsHost劫持双重防御
+#   ✅ 规则优先级重排 (域名规则最先命中)
+#   ✅ 兼容封包v25.3 (193条Safe过检测)
+#
+# v16.0血泪教训 (5次失败复盘):
+#   ❌ REJECT反作弊主域名 → 直接封号 (v13.0)
+#   ❌ DnsHost劫持反作弊 → 心跳异常 (v13.0)
+#   ❌ 反作弊PROXY走Charles → SSL Pinning失败 (v14.1)
 #   ❌ 具体子域名规则 → 花瓶看不到数据
 #   ❌ 过度REJECT → 网络异常
 #
-# v16.0策略:
-#   ✅ 反作弊 KEYWORD DIRECT (SSL Pinning兼容 + 花瓶可见)
-#   ✅ 游戏对战 PROXY (走VPN代理)
-#   ✅ 上报域名 REJECT (log/beacon/bugly等)
-#   ✅ 无DnsHost劫持反作弊
-#   ✅ DnsRule完善路由
+# ⚠️ 当前配置:反作弊走VPN(用于花瓶抓包)
+# ⚠️ 抓完包务必改回DIRECT(避免SSL Pinning失败封号)
 #
-# 配合封包 v21.0 (162条全Send REPLACE, 零风险过检测)
+# 配合封包: ai封包v25_3_Safe过检测版.filt (193条)
 
 [RoutingRule]
 
-#========== 🔴 反作弊 - 只用KEYWORD DIRECT (花瓶可见+SSL Pinning兼容) ==========
+#========== 🔥 反作弊主域名 PROXY (抓包调试用,平时应改回DIRECT) ==========
 DOMAIN-KEYWORD,anticheatexpert,PROXY
 DOMAIN-KEYWORD,gamesafe,PROXY
 DOMAIN-KEYWORD,cschannel,PROXY
@@ -29,6 +32,7 @@ DOMAIN-KEYWORD,pubgmhd,PROXY
 DOMAIN-KEYWORD,tencentgame,PROXY
 DOMAIN-KEYWORD,tmgp,PROXY
 DOMAIN-KEYWORD,gcloud,PROXY
+DOMAIN-KEYWORD,broker.tplay,PROXY
 
 DOMAIN,pubgmhd.qq.com,PROXY
 DOMAIN,pubgm.qq.com,PROXY
@@ -45,12 +49,10 @@ DOMAIN,midas.qq.com,PROXY
 DOMAIN,pay.qq.com,PROXY
 DOMAIN,ipay.qq.com,PROXY
 DOMAIN,payapp.weixin.qq.com,PROXY
-
-DOMAIN-KEYWORD,broker.tplay,PROXY
 DOMAIN,openapi.tencentyun.com,PROXY
 DOMAIN,wsd.qq.com,PROXY
 
-#========== 🔴 log实测HIT封号IP (精准打击) ==========
+#========== 🔴 log实测HIT封号IP (精准REJECT) ==========
 DOMAIN,101.226.101.163,REJECT
 DOMAIN,182.254.116.117,REJECT
 DOMAIN,182.254.118.119,REJECT
@@ -60,19 +62,19 @@ DOMAIN,101.91.32.32,REJECT
 DOMAIN,101.91.23.166,REJECT
 
 #========== 🔴 EagleEye日志上报 REJECT ==========
+DOMAIN-KEYWORD,eagleeye,REJECT
+DOMAIN-KEYWORD,transfile,REJECT
 DOMAIN,log.pg.qq.com,REJECT
 DOMAIN,log2.pg.qq.com,REJECT
 DOMAIN,log3.pg.qq.com,REJECT
 DOMAIN,log4.pg.qq.com,REJECT
 DOMAIN,log5.pg.qq.com,REJECT
-DOMAIN-KEYWORD,eagleeye,REJECT
-DOMAIN-KEYWORD,transfile,REJECT
 
-#========== 🔴 iedsafe/tersafe (v9.0已验证KEYWORD) ==========
+#========== 🔴 iedsafe/tersafe (v9.0已验证KEYWORD) REJECT ==========
 DOMAIN-KEYWORD,iedsafe,REJECT
 DOMAIN-KEYWORD,tersafe,REJECT
 
-#========== 🔴 崩溃分析 REJECT ==========
+#========== 🔴 崩溃分析Bugly/CrashSight REJECT ==========
 DOMAIN-KEYWORD,crashsight,REJECT
 DOMAIN-KEYWORD,bugly,REJECT
 DOMAIN,android.crashsight.qq.com,REJECT
@@ -97,7 +99,7 @@ DOMAIN,oth.str.mdt.qq.com,REJECT
 DOMAIN,ug.qq.com,REJECT
 DOMAIN,hbdatah.pg.qq.com,REJECT
 
-#========== 🔴 推送 REJECT ==========
+#========== 🔴 推送通知 REJECT ==========
 DOMAIN,tpns.tencent.com,REJECT
 DOMAIN,access1.tpns.sh.tencent.com,REJECT
 DOMAIN,openapi.tpns.tencent.com,REJECT
@@ -120,7 +122,7 @@ DOMAIN,down.qq.com,PROXY
 DOMAIN,dl.putdl.com,PROXY
 DOMAIN,dl.tlmedi.com,PROXY
 
-#========== 🟢 堆栈IP群 PROXY ==========
+#========== 🟢 log实测游戏后端IP群 PROXY ==========
 DOMAIN,111.30.169.0/24,PROXY
 DOMAIN,114.221.149.0/24,PROXY
 DOMAIN,117.89.177.167,PROXY
@@ -169,9 +171,9 @@ DOMAIN,42.81.179.0/24,PROXY
 DOMAIN,81.69.100.0/24,PROXY
 
 #========== 🎯 端口规则 ==========
-# 反作弊心跳端口 DIRECT (SSL Pinning兼容)
-PORT,10012,DIRECT
-PORT,10013,DIRECT
+# 反作弊心跳端口 PROXY (抓包调试,平时应改回DIRECT)
+PORT,10012,PROXY
+PORT,10013,PROXY
 
 # 反作弊/上报端口 PROXY
 PORT,10000,PROXY
@@ -195,7 +197,7 @@ PORT,40001,PROXY
 # 游戏授权端口 PROXY
 PORT,31003,PROXY
 
-# Charles抓包游戏服务器端口 PROXY
+# 游戏服务器端口(可抓包) PROXY
 PORT,5692,PROXY
 PORT,33861,PROXY
 PORT,63861,PROXY
@@ -208,11 +210,11 @@ PORT,24863,PROXY
 PORT,11762,PROXY
 PORT,65010,PROXY
 
-# HTTP/HTTPS
+# HTTP/HTTPS PROXY (全流量走VPN)
 PORT,80,PROXY
 PORT,443,PROXY
 
-# 游戏大厅 - DIRECT加速
+# 游戏大厅 DIRECT加速
 PORT,17500,DIRECT
 
 #========== 🎯 兜底策略 ==========
@@ -238,13 +240,13 @@ uplinkOnly = 20
 1.1.1.1
 
 [DnsRule]
-# 反作弊类 → 阿里DNS (直连反作弊, DNS准确)
+# 反作弊类 → 阿里DNS (准确解析,配合PROXY走VPN)
 DOMAIN-KEYWORD,anticheatexpert,223.5.5.5
 DOMAIN-KEYWORD,gamesafe,223.5.5.5
 DOMAIN-KEYWORD,cschannel,223.5.5.5
 DOMAIN-KEYWORD,tersafe,223.5.5.5
 DOMAIN-KEYWORD,iedsafe,223.5.5.5
-# 游戏类 → DNSPod (腾讯自家DNS)
+# 游戏类 → DNSPod (腾讯自家DNS,解析游戏域名最快)
 DOMAIN-KEYWORD,pubgmhd,119.29.29.29
 DOMAIN-KEYWORD,qq.com,119.29.29.29
 DOMAIN-KEYWORD,tencent,119.29.29.29
@@ -254,7 +256,7 @@ DOMAIN-KEYWORD,tmgp,119.29.29.29
 DOMAIN-KEYWORD,broker.tplay,119.29.29.29
 
 [DnsHost]
-# EagleEye日志上报
+# EagleEye日志上报 → 127.0.0.1
 log.pg.qq.com=127.0.0.1
 log2.pg.qq.com=127.0.0.1
 log3.pg.qq.com=127.0.0.1
