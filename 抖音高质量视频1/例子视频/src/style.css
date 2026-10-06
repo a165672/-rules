@@ -1,0 +1,72 @@
+@font-face { font-family: 'NSerif'; src: url('../tools/fonts/NotoSerifSC-Black.otf') format('opentype'); font-weight: 900; }
+@font-face { font-family: 'NSerif'; src: url('../tools/fonts/NotoSerifSC-Bold.otf') format('opentype'); font-weight: 700; }
+@font-face { font-family: 'NSans'; src: url('../tools/fonts/NotoSansSC-Regular.otf') format('opentype'); font-weight: 400; }
+@font-face { font-family: 'NSans'; src: url('../tools/fonts/NotoSansSC-Medium.otf') format('opentype'); font-weight: 500; }
+@font-face { font-family: 'NSans'; src: url('../tools/fonts/NotoSansSC-Bold.otf') format('opentype'); font-weight: 700; }
+
+:root {
+  --bg: #0b0a0c;
+  --white: #f1ede6;
+  --grey: #8d8882;
+  --dim: #5d5955;
+  --faint: #3a3735;
+  --red: #ff2d2d;
+  --red-deep: #c4161a;
+  --lime: #c8f53c;
+  --glow-red: 0 0 18px rgba(255, 40, 40, .55), 0 0 4px rgba(255, 70, 60, .8);
+  --glow-lime: 0 0 20px rgba(200, 245, 60, .5), 0 0 4px rgba(215, 255, 90, .7);
+  --glow-white: 0 0 18px rgba(255, 245, 235, .18);
+}
+
+html, body { margin: 0; padding: 0; background: #000; overflow: hidden; }
+#stage {
+  position: relative; width: 1280px; height: 720px; overflow: hidden;
+  background: var(--bg); color: var(--white);
+  font-family: 'NSans', sans-serif; font-weight: 500;
+  -webkit-font-smoothing: antialiased; text-rendering: geometricPrecision;
+}
+.layer { position: absolute; inset: 0; pointer-events: none; }
+.scene { position: absolute; inset: 0; display: none; }
+.abs { position: absolute; }
+
+/* typography */
+.serif { font-family: 'NSerif', serif; font-weight: 900; }
+.serif-b { font-family: 'NSerif', serif; font-weight: 700; }
+.sans { font-family: 'NSans', sans-serif; }
+.txt { position: absolute; white-space: nowrap; line-height: 1.2; }
+.ch { display: inline-block; white-space: pre; }
+
+/* colour spans used by V.Text markup: <r> <g> <w> <d> <f> */
+.r { color: var(--red); text-shadow: var(--glow-red); }
+.g { color: var(--lime); text-shadow: var(--glow-lime); }
+.w { color: var(--white); }
+.d { color: var(--grey); }
+.f { color: var(--dim); }
+
+/* chrome */
+#chrome .tl { left: 47px; top: 35px; font-size: 12px; letter-spacing: .42em; color: #5f5b57; font-weight: 500; }
+#chrome .tr { right: 47px; top: 34px; font-size: 13px; letter-spacing: .12em; color: #6a6560; font-weight: 500; }
+#chrome .mark { left: 0; right: 0; top: 84px; text-align: center; font-size: 15px; letter-spacing: .32em; color: #8a857f; }
+#chrome .mark .sq { display: inline-block; width: 7px; height: 7px; background: var(--red); margin-right: 22px; vertical-align: 3px; box-shadow: 0 0 8px rgba(255,45,45,.7); }
+#chrome .mark .num { color: var(--red); margin-right: 14px; font-weight: 700; }
+#chrome .bar { left: 47px; top: 690px; width: 1186px; height: 1px; background: #2a2725; }
+#chrome .bar .fill { position: absolute; left: 0; top: 0; height: 1px; background: #8f8a84; }
+#chrome .bar .tick { position: absolute; top: -4px; width: 1px; height: 9px; background: #5a5652; }
+
+/* shared components */
+.pill {
+  position: absolute; white-space: nowrap; padding: 6px 15px 7px; border-radius: 999px;
+  border: 1.5px solid #6c6762; background: rgba(12, 11, 12, .92); color: var(--white);
+  font-size: 19px; font-weight: 700; letter-spacing: .04em; transform: translate(-50%, -50%);
+}
+.pill.red-outline { border-color: var(--red); color: #ffd9d6; box-shadow: 0 0 14px rgba(255,45,45,.35), inset 0 0 8px rgba(255,45,45,.15); }
+.pill.red { background: var(--red); border-color: var(--red); color: #fff; box-shadow: 0 0 16px rgba(255,45,45,.55); }
+.pill.lime-outline { border-color: var(--lime); color: #f4ffd8; box-shadow: 0 0 14px rgba(200,245,60,.3); }
+.pill.small { font-size: 15px; padding: 4px 11px 5px; }
+
+.chk { position: absolute; white-space: nowrap; font-size: 21px; color: #d9d4cd; font-weight: 500; }
+.chk .box {
+  display: inline-block; width: 24px; height: 24px; border: 1.5px solid #a7a19a; border-radius: 3px;
+  vertical-align: -5px; margin-right: 22px; position: relative; box-sizing: border-box;
+}
+.chk .box svg { position: absolute; left: 1px; top: 1px; }
