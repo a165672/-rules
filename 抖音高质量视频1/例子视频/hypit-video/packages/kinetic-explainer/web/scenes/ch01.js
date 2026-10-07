@@ -1,17 +1,19 @@
 /* 01 内耗循环（16.5 – 35.5s）
  *
  * 时间轴（与参考视频「回避循环」同一时刻对齐）：
- *  16.90  右侧标题「内耗循环」逐字模糊→清晰
- *  17.76  上节点「想做的事」弹出 → 18.31 弧线画向右侧 → 18.64 箭头
- *  18.77  右节点「脑内预演」（红框）→ 19.31 弧线 → 19.64 箭头
- *  19.77  下节点「躺着 · 刷手机」→ 20.31 弧线 → 20.64 箭头
- *  20.77  左节点「自责」→ 21.31 弧线回到顶部 → 21.64 箭头
- *  22.25  圆环变红；中心电量「100」+「% 剩 余 电 量」淡入；白色光点带红色彗尾开始绕圈
- *  22.88  文案①「什么都没做，/ 电却一直在漏。」；23.17 左侧红色胶囊「= 耗电」
+ *  16.93  右侧标题「内耗循环」逐字模糊→清晰
+ *  17.745 上节点「想做的事」弹出（弹簧：~0.27s 过冲到 1.09，~0.45s 回稳）→ 18.31 弧线画向右侧 → 18.62 箭头原尺寸淡入
+ *  18.745 右节点「脑内预演」（红框）→ 19.31 弧线 → 19.62 箭头
+ *  19.745 下节点「躺着 · 刷手机」→ 20.31 弧线 → 20.62 箭头
+ *  20.745 左节点「自责」→ 21.31 弧线回到顶部 → 21.62 箭头
+ *  22.25  圆环硬切变红；中心电量「100」+「% 剩 余 电 量」淡入；白色光点带红色彗尾开始绕圈
+ *  22.80  文案①「什么都没做，/ 电却一直在漏。」；23.14 左侧红色胶囊「= 耗电」
+ *  24.82  四个箭头同时硬切变红（参考第 745 帧）
  *  每过顶部一次（24.75 26.47 27.86 29.06 30.13 31.11 32.01 32.86 33.66 34.41 35.13）电量下降一截并弹跳，
  *  光点逐圈加速，圆环逐圈变粗、变亮、发光；30.13 电量跌破 40 → 数字变红
- *  26.85  文案②「想得越多，/ 做得越少。」   30.85 文案③「每转一圈，/ 你就更累一点。」
- *  35.20 – 35.48 整体模糊淡出
+ *  26.80  文案②「想得越多，/ 做得越少。」   30.80 文案③「每转一圈，/ 你就更累一点。」
+ *  35.233 参考整帧定格（光点停在过顶后 ~51°，彗尾保持不动）
+ *  35.30 – 35.50 整体上移 + 模糊淡出（参考同样上移、淡出；它的淡出拖到 ~35.7，我们必须在 35.5 前清空，故用 ease-in 尽量多保留画面）
  */
 (function () {
   const { E } = V;
@@ -35,13 +37,12 @@
     }
     return d;
   })();
-  const STOP_TAU = 0.1;
   function laps(t) {
     const n = LAP_T.length;
     if (t <= LAP_T[0]) return 0;
     if (t >= LAP_T[n - 1]) {
-      // 最后一圈过顶后迅速减速停住（参考在 ~35.25 停住）
-      return n - 1 + lapD[n - 1] * STOP_TAU * (1 - Math.exp(-(t - LAP_T[n - 1]) / STOP_TAU));
+      // 最后一圈过顶后保持原速，直到 FREEZE_T 整帧定格（参考：35.233 停在过顶后 ~51°，没有减速）
+      return n - 1 + lapD[n - 1] * (Math.min(t, FREEZE_T) - LAP_T[n - 1]);
     }
     let i = 0;
     while (t >= LAP_T[i + 1]) i++;
@@ -57,17 +58,20 @@
   const f2 = (v) => v.toFixed(2);
 
   /* ---------- 节奏点 ---------- */
-  const NODE_T = [17.76, 18.77, 19.77, 20.77];
+  const NODE_T = [17.745, 18.745, 19.745, 20.745];
   const ARC_T = [18.31, 19.31, 20.31, 21.31];
-  const CHEV_T = [18.64, 19.64, 20.64, 21.64];
+  const CHEV_T = [18.62, 19.62, 20.62, 21.62];
   const RED_T = 22.25; // 圆环变红 + 光点出发
-  const TAG_T = 23.17;
+  const TAG_T = 23.14;
   const CAP = [
     { a: '什么都没做，', b: '电却一直在<r>漏</r>。', t: 22.8, out: 26.36 },
     { a: '想得越多，', b: '做得越少。', t: 26.8, out: 30.36 },
     { a: '每转一圈，', b: '你就更<r>累</r>一点。', t: 30.8, out: null },
   ];
-  const EXIT_T = 35.29, EXIT_D = 0.2;
+  const FREEZE_T = 1057 / 30; // 参考在 35.233 起整帧定格（直到 35.30 出场）
+  const EXIT_T = 35.30, EXIT_D = 0.2;
+  const CHEV_RED_T = 24.82; // 参考：四个箭头在 24.833 同一帧变红
+  const TITLE_T = 16.93;
 
   /* ---------- 背景辉光（本章窗口内的关键帧归本文件管理） ----------
    * 参考：转场后（~17.2）背景是中性偏冷的暗灰微光（环形图后方略亮），并不发红；
@@ -81,12 +85,12 @@
   /* ---------- 样式（仅本章使用，c01- 前缀） ---------- */
   const css = `
   .c01-wrap { position:absolute; inset:0; }
-  .c01-node { position:absolute; white-space:nowrap; padding:7px 14px 7px; border-radius:999px;
-    border:2px solid #74706b; background:rgba(7,7,10,.97); color:#f3efe9; font-size:23px; font-weight:700;
+  .c01-node { position:absolute; white-space:nowrap; padding:7px 16px 7px; border-radius:999px;
+    border:2px solid #727074; background:rgba(7,7,10,.97); color:#f3efe9; font-size:23px; font-weight:700;
     letter-spacing:.01em; line-height:1.3; box-shadow:0 0 0 1px rgba(0,0,0,.35); }
   .c01-node.neg { border-color:#ff3530; color:#ff3b33; text-shadow:0 0 10px rgba(255,45,45,.35);
     box-shadow:0 0 12px rgba(255,45,45,.28), inset 0 0 8px rgba(255,45,45,.10); }
-  .c01-node .dot { display:inline-block; margin:0 .45em; }
+  .c01-node .dot { display:inline-block; margin:0 .36em; }
   .c01-tag { position:absolute; white-space:nowrap; padding:5px 16px 6px; border-radius:999px; background:#ff3b30;
     color:#fff; font-size:19px; font-weight:700; letter-spacing:.02em; line-height:1.4;
     box-shadow:0 0 14px rgba(255,45,45,.42); }
@@ -120,7 +124,7 @@
       for (let i = 0; i < 4; i++) {
         const a0 = -90 + 90 * i, a1 = a0 + 90;
         const p0 = pt(a0), p1 = pt(a1);
-        arcs.push(V.svg('path', { d: `M ${f2(p0.x)} ${f2(p0.y)} A ${R} ${R} 0 0 1 ${f2(p1.x)} ${f2(p1.y)}`, fill: 'none', stroke: '#8a857f', 'stroke-width': 1.5, 'stroke-linecap': 'round' }, svgBuild));
+        arcs.push(V.svg('path', { d: `M ${f2(p0.x)} ${f2(p0.y)} A ${R} ${R} 0 0 1 ${f2(p1.x)} ${f2(p1.y)}`, fill: 'none', stroke: '#7e7c81', 'stroke-width': 1.6, 'stroke-linecap': 'round' }, svgBuild));
       }
 
       /* 红色圆环：亮度/粗细/辉光随圈数连续提升 */
@@ -139,7 +143,7 @@
         const g = V.svg('g', {}, svgChev);
         const pl = V.svg('polyline', {
           points: `${f2(p.x + u.x * L)},${f2(p.y + u.y * L)} ${f2(p.x)},${f2(p.y)} ${f2(p.x + w.x * L)},${f2(p.y + w.y * L)}`,
-          fill: 'none', stroke: '#e9e4dd', 'stroke-width': 2.5, 'stroke-linecap': 'square', 'stroke-linejoin': 'miter',
+          fill: 'none', stroke: '#f7f4ef', 'stroke-width': 2.5, 'stroke-linecap': 'square', 'stroke-linejoin': 'miter',
         }, g);
         g.style.transformOrigin = `${f2(p.x)}px ${f2(p.y)}px`;
         chevs.push({ g, pl, phi });
@@ -183,7 +187,9 @@
       }));
     },
 
-    update(lt, t) {
+    update(lt, tReal) {
+      // 35.233 起参考整帧定格：除出场外，所有动画都用定格时间
+      const t = Math.min(tReal, FREEZE_T);
       const L = laps(t);
       const k = Math.min(LAP_T.length - 1, Math.floor(L + 1e-6));
       const frac = L - Math.floor(L);
@@ -191,8 +197,12 @@
       const spd = going ? lapSpeed(Math.min(t, 35.1)) : 0;
 
       /* ---- 整体出场 ---- */
-      const out = V.ep(t, EXIT_T, EXIT_D, E.inOutCubic);
-      V.set(wrap, { o: 1 - out, blur: out * 12, s: 1 + out * 0.015 });
+      // 参考：35.30 起整体匀速上移（无缩放）并近似线性变暗，到 35.5 仍剩 ~55%；
+      // 我们须在 35.5 前清空 → 前段贴着参考的线性变暗，末两帧再加速收掉
+      const xp = V.prog(tReal, EXIT_T, EXIT_D);
+      const xo = (1 - 0.45 * xp) * (1 - Math.pow(xp, 5)); // 35.40 ≈ .75，最后一帧 35.467 ≈ .37
+      const xy = -16 * E.inQuad(V.prog(tReal, EXIT_T, 0.3));
+      V.set(wrap, { o: xp <= 0 ? 1 : xo, y: xy, blur: 3 * Math.pow(xp, 1.5) });
 
       /* ---- 背景红雾：随圈数加深 ---- */
       // 参考：红雾以画面中部偏右（环与文案之间）为中心，覆盖上下全高，左右边缘渐暗；
@@ -204,21 +214,19 @@
       haze.style.background = `radial-gradient(ellipse 50% 75% at 52% 52%, ${hs(1)} 0%, ${hs(0.88)} 45%, ${hs(0.62)} 60%, ${hs(0.36)} 75%, ${hs(0.12)} 88%, ${hs(0)} 100%)`;
 
       /* ---- 标题 ---- */
-      title.reveal(t, 16.9, { stagger: 0.067, dur: 0.32, blur: 16, dy: 0, scale: 1.12 });
+      title.reveal(t, TITLE_T, { stagger: 0.067, dur: 0.45, blur: 16, dy: 0, scale: 1.12 });
 
       /* ---- 节点弹出 ---- */
-      nodes.forEach((e, i) => {
-        const p = V.prog(t, NODE_T[i], 0.3);
-        const s = p <= 0 ? 0.3 : V.lerp(0.3, 1, E.outBack(p));
-        V.set(e, { o: V.clamp(p * 3), s });
-      });
-      {
-        const p = V.prog(t, TAG_T, 0.26);
-        V.set(tag, { o: V.clamp(p * 3), s: p <= 0 ? 0.3 : V.lerp(0.3, 1, E.outBack(p)) });
-      }
+      // 弹簧式弹出（按参考逐帧量宽度：~0.16s 到原尺寸，~0.27s 过冲到 1.09，~0.45s 回稳）
+      const popIn = (e, t0) => {
+        const p = V.prog(t, t0, 0.46);
+        V.set(e, { o: V.clamp(p * 4), s: p <= 0 ? 0.15 : V.lerp(0.15, 1, E.outBack(p)) });
+      };
+      nodes.forEach((e, i) => popIn(e, NODE_T[i]));
+      popIn(tag, TAG_T);
 
       /* ---- 搭建：灰色弧线 ---- */
-      const toRed = V.ep(t, RED_T - 0.06, 0.1, E.inOutQuad); // 参考在 22.2 左右整环转红
+      const toRed = t >= RED_T ? 1 : 0; // 参考在 22.233→22.267 两帧之间整环硬切变红（交叉淡化会让环先变暗一下）
       arcs.forEach((a, i) => V.draw(a, V.ep(t, ARC_T[i], 0.4, E.outCubic)));
       svgBuild.style.opacity = (1 - toRed).toFixed(3);
 
@@ -245,16 +253,15 @@
       svgRing.style.opacity = toRed.toFixed(3);
       setRing(svgRing, ringBase, going ? L : 0, pulse);
 
-      /* ---- 箭头：搭建时白色弹出，第一圈结束（24.75）时变红 ---- */
+      /* ---- 箭头：搭建时原尺寸淡入（参考不缩放，~0.18s 亮起），24.82 四个一起硬切变红 ---- */
+      const chevRed = t >= CHEV_RED_T;
       chevs.forEach((c, i) => {
-        const p = V.prog(t, CHEV_T[i], 0.18);
-        const redK = going ? V.ep(t, LAP_T[1] - 0.02, 0.16) : 0; // 第一圈结束时一起变红
-        const r = Math.round(V.lerp(233, 255, redK)), g = Math.round(V.lerp(228, 58, redK)), b = Math.round(V.lerp(221, 50, redK));
-        c.pl.setAttribute('stroke', `rgb(${r},${g},${b})`);
+        const p = E.inOutSine(V.prog(t, CHEV_T[i], 0.19));
+        c.pl.setAttribute('stroke', chevRed ? 'rgb(230,64,70)' : '#f7f4ef');
         const lv = lvl(L);
         c.pl.setAttribute('stroke-width', (2.5 + (going ? Math.max(0, lv.w - 2.6) * 0.3 : 0)).toFixed(2));
-        c.g.style.opacity = V.clamp(p * 2.5).toFixed(3);
-        c.g.style.transform = `scale(${(p <= 0 ? 0.4 : V.lerp(0.4, 1, E.outBack(p))).toFixed(3)})`;
+        c.g.style.opacity = p.toFixed(3);
+        c.g.style.filter = p > 0 && p < 1 ? `blur(${((1 - p) * 1.2).toFixed(2)}px)` : 'none';
       });
 
       /* ---- 光点 + 彗尾 ---- */
@@ -312,7 +319,8 @@
       }
 
       /* ---- 中心电量 ---- */
-      const nIn = V.ep(t, RED_T - 0.03, 0.7, E.outCubic); // 参考 22.25 已能看到暗灰数字
+      // 参考 22.267（变红后的第一帧）已能看到暗灰数字，22.233 还完全没有
+      const nIn = t >= RED_T ? V.ep(t, RED_T - 0.03, 0.7, E.outCubic) : 0;
       const val = BATT[going ? k : 0];
       if (val !== lastNum) { numEl.textContent = String(val); lastNum = val; }
       const low = val < 40;
@@ -327,12 +335,18 @@
         numEl.style.textShadow = `0 0 ${(gw + 10 * pop).toFixed(1)}px rgba(255,246,238,${(0.12 + 0.32 * V.clamp(L / 5) + 0.25 * pop).toFixed(2)})`;
       }
       V.set(numEl, { o: nIn, blur: (1 - nIn) * 3, s: sz * (1 + 0.18 * pop) * V.lerp(1.06, 1, nIn), bright: V.lerp(0.45, 1, nIn) });
-      V.set(lblEl, { o: V.ep(t, RED_T, 0.55), blur: (1 - V.ep(t, RED_T, 0.55)) * 5 });
+      // 参考：小字在 22.20 → 22.97 近似线性亮起（比数字慢）
+      const lIn = V.prog(t, 22.2, 0.77);
+      V.set(lblEl, { o: lIn, blur: (1 - lIn) * 2 });
 
       /* ---- 文案 ---- */
+      // 出场：参考是保持清晰、线性变暗（26.35 → 26.70），几乎不糊——不是 inOut 先停后急再糊掉
       caps.forEach(({ c, a, b }) => {
-        a.anim(t, c.t, c.out, { stagger: 0.028, dur: 0.3, blur: 8, dy: 6, outDur: 0.42, outBlur: 10 });
-        b.anim(t, c.t + 0.22, c.out, { stagger: 0.055, dur: 0.3, blur: 12, dy: 10, outDur: 0.42, outBlur: 12 });
+        const k = c.out == null ? 1 : 1 - V.prog(t, c.out - 0.01, 0.38);
+        a.reveal(t, c.t, { stagger: 0.028, dur: 0.3, blur: 8, dy: 6 });
+        a.block({ o: k, blur: (1 - k) * 1.2 });
+        b.reveal(t, c.t + 0.28, { stagger: 0.055, dur: 0.3, blur: 12, dy: 10 });
+        b.block({ o: k, blur: (1 - k) * 1.2 });
       });
     },
   });
