@@ -93,10 +93,11 @@
     },
   });
 
-  /** whole-group exit: fade + blur (+ optional drift). 参考逐帧：出场约 0.37s、亮度近似线性下降，模糊在后半段才明显（≈k²） */
+  /** whole-group exit: fade (+ optional drift). 参考逐帧：本章 A/B/C 段出场约 0.37s、亮度近似线性下降，
+   *  字形全程保持清晰、不位移（与上一帧的模板相关度一直 ≥0.9）→ 只留极轻的模糊 */
   const exitGroup = (el, t, s, d = 0.37, o = {}) => {
     const k = V.prog(t, s, d);
-    V.set(el, { o: 1 - k, blur: k * k * (o.blur ?? 10), y: k * (o.dy || 0), s: 1 + k * (o.ds || 0) });
+    V.set(el, { o: 1 - k, blur: k * k * (o.blur ?? 1.5), y: k * (o.dy || 0), s: 1 + k * (o.ds || 0) });
     return k;
   };
 

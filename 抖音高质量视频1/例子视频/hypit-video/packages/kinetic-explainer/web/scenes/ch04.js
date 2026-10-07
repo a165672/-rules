@@ -16,7 +16,7 @@
  *   78.77  三条红线同时划过，想法变暗；79.23 大幅镜头抖动（首帧 16px）
  *   79.27  红色巨字「46.9%」砸下 + 整屏红色辉光；79.75 右侧白字说明（整组居中）
  *   81.13  灰色脚注；红色辉光 81.3 – 82.3 退去
- *   83.29 – 83.58  整体淡出（ease-in，83.6 前清空）
+ *   83.30 – 83.733 章节转场：线性淡出 + 整体上移 15px + 渐虚（与参考逐帧一致，跨过 83.6；05 章内容 83.93 才出现）
  */
 (function () {
   const { E } = V;
@@ -147,11 +147,18 @@
     { text: '“放空一下就好了。”', x: 640, t: 76.73 },
     { text: '“我又没干什么。”', x: 980, t: 77.32 },
   ];
-  const Q_Y = 377, T_QSTRIKE = 78.77, T_STAT = 79.27, T_CAP = 79.75, T_FOOT = 81.13, B_OUT = 83.29;
+  const Q_Y = 377, T_QSTRIKE = 78.77, T_STAT = 79.27, T_CAP = 79.75, T_FOOT = 81.13;
+  // 章节转场（参考五处章节切换完全相同，逐帧实测）：以 M 为中点，M-0.2 → M+0.233 近似线性淡出，
+  // M-0.17 → M+0.15 整体上移 15px（smoothstep），越到后面越虚。本章 M = 83.5（参考 83.733 清空）
+  const XF_M = 83.5, XF_END = XF_M + 0.25;
+  const xfade = (t, M) => {
+    const p = V.prog(t, M - 0.2, 0.433), q = V.prog(t, M - 0.17, 0.32);
+    return { p, o: 1 - p, y: -15 * q * q * (3 - 2 * q), blur: 6 * p * p };
+  };
   const STAT_Y = 502, CAP_Y = 514;
 
   V.addScene({
-    id: 'ch04-b', start: MID, end: END,
+    id: 'ch04-b', start: MID, end: XF_END,
     build(root) {
       B.wash = V.el('div', { cls: 'c04-wash', parent: root });
       B.wrap = V.el('div', { cls: 'c04-layer', parent: root });
@@ -219,15 +226,14 @@
       B.cap.reveal(t, T_CAP, { stagger: 0.028, dur: 0.28, blur: 8, dy: 6 });
       B.foot.reveal(t, T_FOOT, { stagger: 0.035, dur: 0.34, blur: 7, dy: 5 });
 
-      // 出场：参考 83.43 仍有 ≈80% 亮度、几乎不模糊，并一直淡到 83.7；本章 83.6 必须清空
-      // → ease-in：83.43 ≈76%，末帧 83.567 ≈9%，避免切到下一章时跳变
-      const out = V.ep(t, B_OUT, 0.29, E.inQuad);
+      // 出场：章节转场（83.30 起线性淡出、整体上移，83.733 清空）
+      const xf = xfade(t, XF_M), out = xf.p;
       // 红色辉光：79.2 起 ≈0.25s 升满（参考非瞬间跳变）；81.3 起 ≈1s 退去
       const washOut = (x) => 0.6 * x + 0.4 * E.inOutSine(x);
       const wash = V.ep(t, 79.2, 0.25, E.inOutSine) * (1 - V.ep(t, 81.3, 0.95, washOut));
       B.wash.style.opacity = (0.47 * wash * (1 - out)).toFixed(3);
       const j = shake(t);
-      V.set(B.wrap, { o: 1 - out, blur: out * 2.2, x: j.x, y: j.y, s: 1 + out * 0.01 });
+      V.set(B.wrap, { o: xf.o, blur: xf.blur, x: j.x, y: j.y + xf.y, s: 1 + out * 0.01 });
     },
   });
 })();

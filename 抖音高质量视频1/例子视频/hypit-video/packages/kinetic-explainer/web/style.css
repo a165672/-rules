@@ -38,7 +38,7 @@ html, body { margin: 0; padding: 0; background: #000; overflow: hidden; }
 .f { color: var(--dim); }
 
 /* chrome */
-#chrome .tl { left: 47px; top: 35px; font-size: 12px; letter-spacing: .42em; color: #5f5b57; font-weight: 500; }
+#chrome .tl { left: 47px; top: 35px; font-size: 12px; letter-spacing: .42em; color: #77726c; font-weight: 500; }
 #chrome .tr { right: 47px; top: 34px; font-size: 13px; letter-spacing: .12em; color: #6a6560; font-weight: 500; }
 #chrome .mark { left: 0; right: 0; top: 84px; text-align: center; font-size: 15px; letter-spacing: .32em; color: #8a857f; }
 #chrome .mark .sq { display: inline-block; width: 7px; height: 7px; background: var(--red); margin-right: 22px; vertical-align: 3px; box-shadow: 0 0 8px rgba(255,45,45,.7); }

@@ -354,13 +354,15 @@
     fill.parentNode.style.opacity = vis;
     fill.style.width = (V.clamp(t / V.DURATION) * 1186).toFixed(2) + 'px';
     // chapter marker
+    // 与参考一致：旧章节标记保持到边界后 ≈0.1s 才淡出（与内容的出场同步），新标记随后淡入
+    const HOLD = 0.12;
     let ci = -1;
-    for (let i = 0; i < V.CHAPTERS.length; i++) if (t >= V.CHAPTERS[i].t) ci = i;
+    for (let i = 0; i < V.CHAPTERS.length; i++) if (t >= V.CHAPTERS[i].t + HOLD) ci = i;
     if (ci < 0) { mark.style.opacity = 0; return; }
     const c = V.CHAPTERS[ci];
     const next = V.CHAPTERS[ci + 1];
-    const a = V.ep(t, c.t + 0.15, 0.5);
-    const b = next ? 1 - V.ep(t, next.t - 0.35, 0.3) : 1;
+    const a = V.ep(t, c.t + 0.3, 0.45);
+    const b = next ? 1 - V.ep(t, next.t - 0.06, 0.18, V.E.inOutCubic) : 1;
     mark.style.opacity = (a * b).toFixed(3);
     mark.style.filter = a < 1 ? `blur(${((1 - a) * 6).toFixed(2)}px)` : 'none';
     if (markNum.textContent !== c.n) { markNum.textContent = c.n; markName.textContent = c.name; }
@@ -377,16 +379,16 @@
       const v = lt < f.attack ? lt / f.attack : lt < f.attack + f.hold ? 1 : 1 - V.E.outCubic((lt - f.attack - f.hold) / Math.max(1e-6, f.dur - f.attack - f.hold));
       if (v * f.peak > o) { o = v * f.peak; col = f.color; }
     }
-    // 全片结尾淡出到黑
-    const end = V.ep(t, V.DURATION - 0.75, 0.72, V.E.inOutSine);
+    // 全片结尾淡出到黑（按成片时间计算，不受时间映射里末段减速的影响）
+    const end = V.T != null ? V.ep(V.T, V.SCORE.duration - 0.75, 0.72, V.E.inOutSine) : V.ep(t, V.DURATION - 0.75, 0.72, V.E.inOutSine);
     if (end > o) { o = end; col = '#000'; }
     flashEl.style.opacity = o.toFixed(3);
     flashEl.style.background = col;
   }
 
-  V.renderAt = (t) => {
+  /** t = 设计时间（秒）；frame 省略时由 t 推出（独立预览）。成片请用 V.renderReal。 */
+  V.renderAt = (t, frame = Math.round(t * V.FPS)) => {
     V.t = t;
-    const frame = Math.round(t * V.FPS);
     const g = bgAt(t);
     bgGlow.style.background = `radial-gradient(ellipse 70% 75% at ${g[5]}% ${g[6]}%, rgba(${g[1] | 0},${g[2] | 0},${g[3] | 0},${g[4].toFixed(3)}) 0%, rgba(${g[1] | 0},${g[2] | 0},${g[3] | 0},0) 70%)`;
     for (const s of V.scenes) {
@@ -407,6 +409,58 @@
     return Array.from(new Set(Array.from(s))).join('');
   };
 
+  /* ---------------- 成片时间 → 设计时间 ----------------
+   * 场景按参考视频配乐的节拍设计（V.beat：首拍 0.46s，拍长 0.4645s）。成片改用《运气的形状》的 BGM：
+   * 首拍 0.070s，拍长 0.5314s（112.9 BPM），时长 130.0s。V.TIME_ANCHORS 以“拍号”给出 [设计拍, 新配乐拍]，
+   * 相邻锚点之间线性插值：设计拍数 = 新拍数的段落逐拍对齐（每个出字依旧落在新配乐的拍点上）；
+   * 拍数不同的段落只放在画面静止的停留/转场处（多出的设计拍 = 加速跳过，少的 = 放慢停留）。 */
+  V.SCORE = { beat0: 0.070, beat: 0.5314, duration: 130.0 };
+  // [设计拍, 新配乐拍]。两首曲子的第一个 drop 都在第 32 拍，开场逐拍一致；
+  // 设计第 182 拍（荧光绿「先动起来。」）要落到新配乐第二个 drop（第 176 拍，93.6s）→ 之前在静止处共删 6 拍；
+  // 之后新配乐还长 14.4 拍 → 在解法章节的静止停留处放慢。逐拍静止度见 productions/why-tired/PROGRESS.md。
+  V.TIME_ANCHORS = [
+    [104, 104], [108, 106], // 02 标题「省电本能」停留：4 拍并作 2 拍
+    [132, 130], [136, 132], // 03「假装在休息」停留：4 → 2
+    [152, 148], [154, 149], // 04「念头」停留：2 → 1
+    [176, 171], [178, 172], // 04 走神研究脚注停留：2 → 1 ⇒ 设计 182 = 新 176（drop B）
+    [184, 178], [188, 184], // 05「先动起来。」停留：4 → 6
+    [194, 190], [196, 193], // 计时 05:00 停留：2 → 3
+    [199, 196], [202, 201], // ① 具体计划 停留：3 → 5
+    [208, 207], [210, 210], // ② 两列之间：2 → 3
+    [229, 229], [234, 240], // 结尾行动号召 + 脚注：5 → 11；其后到 130.0s 为整体淡出
+  ];
+  // 参考配乐在 60s 处循环时拍点后移约 0.06s，场景里 60s 之后的时间按实测对齐，这里同步
+  const designAt = (b) => V.BEAT0 + V.BEAT * b + (b >= 129 ? 0.06 : 0);
+  const realAt = (b) => V.SCORE.beat0 + V.SCORE.beat * b;
+  let mapCache = null;
+  const timeMap = () => {
+    if (mapCache) return mapCache;
+    const pts = [[0, designAt((0 - V.SCORE.beat0) / V.SCORE.beat)]]; // 片头：t=0 对应设计拍 −0.13
+    for (const [db, rb] of V.TIME_ANCHORS) pts.push([realAt(rb), designAt(db)]);
+    pts.push([V.SCORE.duration, V.DURATION]);
+    for (let i = 1; i < pts.length; i++) {
+      if (!(pts[i][0] > pts[i - 1][0] && pts[i][1] >= pts[i - 1][1])) throw new Error('TIME_ANCHORS must increase: ' + JSON.stringify(pts));
+    }
+    return (mapCache = pts);
+  };
+  /** 成片时间 T（秒）→ 设计时间 t（秒） */
+  V.designTime = (T) => {
+    const pts = timeMap();
+    if (T <= 0) return pts[0][1];
+    for (let i = 1; i < pts.length; i++) {
+      if (T <= pts[i][0]) {
+        const [r0, d0] = pts[i - 1], [r1, d1] = pts[i];
+        return d0 + ((T - r0) / (r1 - r0)) * (d1 - d0);
+      }
+    }
+    return V.DURATION;
+  };
+  /** 按成片时间渲染（Hypit 程序与成片预览都走这里） */
+  V.renderReal = (T) => {
+    V.T = T;
+    V.renderAt(V.designTime(T), Math.round(T * V.FPS));
+  };
+
   /** register @font-face rules: [{ family, weight, url }] */
   V.installFonts = (faces) => {
     const css = faces.map((f) => `@font-face{font-family:'${f.family}';src:url('${f.url}');font-weight:${f.weight};font-style:normal;font-display:block;}`).join('\n');
@@ -424,5 +478,6 @@
     V.renderAt(0);
     return true;
   })();
-  window.__render = (t) => V.renderAt(t);
+  window.__render = (t) => { V.T = null; V.renderAt(t); };
+  window.__renderReal = (T) => V.renderReal(T);
 })();

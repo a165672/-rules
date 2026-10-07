@@ -13,7 +13,7 @@
  *  光点逐圈加速，圆环逐圈变粗、变亮、发光；30.13 电量跌破 40 → 数字变红
  *  26.80  文案②「想得越多，/ 做得越少。」   30.80 文案③「每转一圈，/ 你就更累一点。」
  *  35.233 参考整帧定格（光点停在过顶后 ~51°，彗尾保持不动）
- *  35.30 – 35.50 整体上移 + 模糊淡出（参考同样上移、淡出；它的淡出拖到 ~35.7，我们必须在 35.5 前清空，故用 ease-in 尽量多保留画面）
+ *  35.30 – 35.733 章节转场：线性淡出 + 整体上移 15px + 渐虚（与参考逐帧一致，跨过 35.5；02 章内容 36.24 才出现）
  */
 (function () {
   const { E } = V;
@@ -69,7 +69,13 @@
     { a: '每转一圈，', b: '你就更<r>累</r>一点。', t: 30.8, out: null },
   ];
   const FREEZE_T = 1057 / 30; // 参考在 35.233 起整帧定格（直到 35.30 出场）
-  const EXIT_T = 35.30, EXIT_D = 0.2;
+  // 章节转场（参考五处章节切换完全相同，逐帧实测）：以 M 为中点，M-0.2 → M+0.233 近似线性淡出，
+  // M-0.17 → M+0.15 整体上移 15px（smoothstep），越到后面越虚
+  const XF_M = 35.5, XF_END = XF_M + 0.25;
+  const xfade = (t, M) => {
+    const p = V.prog(t, M - 0.2, 0.433), q = V.prog(t, M - 0.17, 0.32);
+    return { p, o: 1 - p, y: -15 * q * q * (3 - 2 * q), blur: 6 * p * p };
+  };
   const CHEV_RED_T = 24.82; // 参考：四个箭头在 24.833 同一帧变红
   const TITLE_T = 16.93;
 
@@ -107,7 +113,7 @@
   let lastNum = null;
 
   V.addScene({
-    id: 'c01-loop', start: START, end: END,
+    id: 'c01-loop', start: START, end: XF_END,
     build(root) {
       V.el('style', { text: css, parent: root });
       wrap = V.el('div', { cls: 'c01-wrap', parent: root });
@@ -197,12 +203,10 @@
       const spd = going ? lapSpeed(Math.min(t, 35.1)) : 0;
 
       /* ---- 整体出场 ---- */
-      // 参考：35.30 起整体匀速上移（无缩放）并近似线性变暗，到 35.5 仍剩 ~55%；
-      // 我们须在 35.5 前清空 → 前段贴着参考的线性变暗，末两帧再加速收掉
-      const xp = V.prog(tReal, EXIT_T, EXIT_D);
-      const xo = (1 - 0.45 * xp) * (1 - Math.pow(xp, 5)); // 35.40 ≈ .75，最后一帧 35.467 ≈ .37
-      const xy = -16 * E.inQuad(V.prog(tReal, EXIT_T, 0.3));
-      V.set(wrap, { o: xp <= 0 ? 1 : xo, y: xy, blur: 3 * Math.pow(xp, 1.5) });
+      // 参考：35.30 起整体上移（无缩放）并线性变暗，35.5 仍剩 ~55%，35.733 清空
+      const xf = xfade(tReal, XF_M);
+      // 本章红雾随内容一起淡出，亮度掉得比参考快 → 透明度曲线略上凸、模糊减半（逐帧亮度与参考一致）
+      V.set(wrap, { o: Math.pow(xf.o, 0.8), y: xf.y, blur: xf.blur * 0.5 });
 
       /* ---- 背景红雾：随圈数加深 ---- */
       // 参考：红雾以画面中部偏右（环与文案之间）为中心，覆盖上下全高，左右边缘渐暗；

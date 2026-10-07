@@ -6,6 +6,7 @@
  * 预览若干时刻（1280×720 PNG，可与参考视频同一时刻并排对比）：
  *   node tools/preview.cjs preview --times 2,4.5,10 --out build/preview/intro [--compare] [--scale 1]
  *   node tools/preview.cjs preview --from 16.5 --to 35.5 --step 1 --out build/preview/ch01 --compare
+ *   加 --real：时间按成片（新配乐，130s）计算，经引擎时间映射后出帧
  *
  * 渲染全片帧序列（1920×1080 JPEG），再交给 ffmpeg 合成：
  *   node tools/preview.cjs frames --out build/frames [--from 0 --to 110.2] [--workers 4] [--scale 1.5]
@@ -20,7 +21,7 @@ try { pw = require('playwright'); } catch (e) { pw = require('/opt/node-tools/no
 const ROOT = path.resolve(__dirname, '..'); // hypit-video/
 const PAGE = 'file://' + path.join(ROOT, 'packages', 'kinetic-explainer', 'web', 'index.html');
 const REF = path.join(ROOT, '..', 'reference', '参考视频.mp4');
-const FPS = 30, DURATION = 110.2;
+const FPS = 30, DURATION = 110.2, REAL_DURATION = 130.0;
 
 function args() {
   const a = process.argv.slice(2);
@@ -48,8 +49,9 @@ async function openPage(browser, scale) {
   return page;
 }
 
-async function shot(page, t, file, type) {
-  await page.evaluate((tt) => window.__render(tt), t);
+async function shot(page, t, file, type, real) {
+  // real = 成片时间（新配乐）；否则为设计时间（与参考视频同一时刻对比）
+  await page.evaluate(([tt, r]) => (r ? window.__renderReal(tt) : window.__render(tt)), [t, !!real]);
   const el = await page.$('#stage');
   if (type === 'jpeg') await el.screenshot({ path: file, type: 'jpeg', quality: 94 });
   else await el.screenshot({ path: file, type: 'png' });
@@ -60,7 +62,7 @@ async function preview(o) {
   let times = [];
   if (o.times) times = String(o.times).split(',').map(Number);
   else {
-    const from = parseFloat(o.from || 0), to = parseFloat(o.to || DURATION), step = parseFloat(o.step || 1);
+    const from = parseFloat(o.from || 0), to = parseFloat(o.to || (o.real ? REAL_DURATION : DURATION)), step = parseFloat(o.step || 1);
     for (let t = from; t < to + 1e-6; t += step) times.push(+t.toFixed(3));
   }
   const out = path.resolve(o.out || path.join(ROOT, 'build', 'preview'));
@@ -70,9 +72,9 @@ async function preview(o) {
   const files = [];
   for (const t of times) {
     const f = path.join(out, `t_${t.toFixed(2).padStart(6, '0')}.png`);
-    await shot(page, t, f, 'png');
+    await shot(page, t, f, 'png', o.real);
     files.push([t, f]);
-    if (o.compare && fs.existsSync(REF)) {
+    if (o.compare && !o.real && fs.existsSync(REF)) {
       const rf = path.join(out, `ref_${t.toFixed(2).padStart(6, '0')}.png`);
       spawnSync('ffmpeg', ['-loglevel', 'error', '-y', '-ss', String(t), '-i', REF, '-frames:v', '1', rf]);
       const cf = path.join(out, `cmp_${t.toFixed(2).padStart(6, '0')}.png`);
@@ -84,7 +86,7 @@ async function preview(o) {
   }
   await browser.close();
   // contact sheet of our frames
-  if (files.length > 1) {
+  if (files.length > 1 && files.length <= 48 && !o.nosheet) {
     const list = path.join(out, 'list.txt');
     const cols = Math.min(4, files.length);
     const rows = Math.ceil(files.length / cols);
@@ -109,7 +111,7 @@ async function frames(o) {
   const out = path.resolve(o.out || path.join(ROOT, 'build', 'frames'));
   fs.mkdirSync(out, { recursive: true });
   const from = Math.round(parseFloat(o.from || 0) * FPS);
-  const to = Math.round(parseFloat(o.to || DURATION) * FPS); // exclusive
+  const to = Math.round(parseFloat(o.to || (o.real ? REAL_DURATION : DURATION)) * FPS); // exclusive
   const workers = parseInt(o.workers || 4, 10);
   const idx = [];
   for (let i = from; i < to; i++) {
@@ -127,7 +129,7 @@ async function frames(o) {
     if (!mine.length) return;
     const page = await openPage(browser, scale);
     for (const i of mine) {
-      await shot(page, i / FPS, path.join(out, `f_${String(i).padStart(5, '0')}.jpg`), 'jpeg');
+      await shot(page, i / FPS, path.join(out, `f_${String(i).padStart(5, '0')}.jpg`), 'jpeg', o.real);
       done++;
       if (done % 100 === 0) {
         const el = (Date.now() - t0) / 1000;

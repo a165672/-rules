@@ -2,7 +2,9 @@
 <!--
   《为什么你什么都不干，却还是很累》— 纯动效（无旁白）的知识类横屏短视频。
   画面：项目组件 @lazy/kinetic-explainer 在 1280×720 设计坐标上逐帧绘制，缩放到 1920×1080。
-  声音：原样沿用参考视频的配乐（110.2s，≈129 BPM），所有出字、转场都卡在它的节拍和小节上。
+  声音：《运气的形状》（Iwanau · Vibe知识大赏）的 BGM，130.0s，112.9 BPM。场景按参考视频配乐的节拍编排，
+  组件里的时间映射把成片时间逐拍对应到设计时间：第一个 drop（17.1s）与参考同在第 32 拍，
+  第二个 drop（93.6s，第 176 拍）落在荧光绿「先动起来。」上。
 -->
 <svml>
   <import as="time" from="@hypit/timeline-author@1"/>
@@ -15,9 +17,9 @@
   <import as="render" from="@hypit/render-hyperframes@1"/>
   <import as="look" source="../recipes/look.svs"/>
 
-  <!-- 110.2s × 30fps = 3306 帧，与配乐等长 -->
+  <!-- 130.0s × 30fps = 3900 帧，与 BGM 等长 -->
   <time:Clock id="clock" frame-rate="30"/>
-  <time:Timeline id="animation" clock={clock} end="3306f"/>
+  <time:Timeline id="animation" clock={clock} end="3900f"/>
   <space:Canvas id="canvas" width="1920" height="1080"/>
 
   <!-- 思源宋体（标题）/ 思源黑体（正文），来自 GitHub notofonts/noto-cjk -->
@@ -27,12 +29,12 @@
   <media:Font id="sans-medium" src="../../../assets/fonts/NotoSansSC-Medium.otf" weight="500" style="normal"/>
   <media:Font id="sans-bold" src="../../../assets/fonts/NotoSansSC-Bold.otf" weight="700" style="normal"/>
 
-  <!-- 配乐：参考视频的原配乐，整片播放一次 -->
-  <media:Audio id="score" src="../../../assets/music/reference-score.m4a"/>
+  <!-- 配乐：用户提供的《运气的形状》BGM，整片播放一次，片尾 1s 淡出 -->
+  <media:Audio id="score" src="../../../assets/music/luck-shape-bgm.m4a"/>
   <pipeline:Normalize id="score-media" source={score} clock={clock}
     video="none" audio="default" span-authority="audio"/>
   <audio:Track id="music" timeline={animation.timeline}>
-    <audio:Item id="score-bed" source={score-media.media} during="program" playback="once"/>
+    <audio:Item id="score-bed" source={score-media.media} during="program" playback="once" fade-out="1s"/>
   </audio:Track>
 
   <kx:Scene id="explainer" timeline={animation.timeline} canvas={canvas} during="program"
@@ -45,7 +47,7 @@
   </film:Film>
 
   <render:Video id="final" composition={main.composition} timeline={animation.timeline}/>
-  <!-- 局部审片：开场 0–16.5s（495 帧）-->
+  <!-- 局部审片：开场到第一个 drop 之后（0–19s，570 帧）-->
   <render:Video id="opening" composition={main.composition} timeline={animation.timeline}
-    start-frame="0" end-frame-exclusive="495"/>
+    start-frame="0" end-frame-exclusive="570"/>
 </svml>

@@ -2,6 +2,7 @@
  *  A 0–1.45   念头墙：12 行横向漂移的内心独白 + 中间大字随节拍切换（首帧即封面）
  *  B 1.42–6.8 白闪 → 你不是懒。（双层光环扩散、整屏抖动、白线划掉“懒”）→ 内耗循环
  *  C 6.9–16.5 你心里有很多想做的事 → 三张勾选卡片 → 红色念头冒出 → 你却已经累了。
+ *    出场跨过 16.5（与参考相同的章节转场：16.3 – 16.733 线性淡出 + 整体上移 15px，01 章内容 16.93 才出现）
  * 所有时间点均按参考视频逐帧（30fps）实测对齐。
  */
 (function () {
@@ -340,12 +341,17 @@
     { text: '来不及了', t: 11.89, x: 1107, y: 458, fs: 28 },
     { text: '明天吧', t: 12.16, x: 170, y: 252, fs: 27 },
   ];
-  // 整体模糊淡出：参考 16.3 起开始虚、16.47 只剩四成、16.5 后消失；本窗口 16.5 截止
-  const C_OUT = 16.3, C_OUT_D = 0.19;
+  // 章节转场（参考五处章节切换完全相同，逐帧实测）：以 M 为中点，M-0.2 → M+0.233 近似线性淡出，
+  // M-0.17 → M+0.15 整体上移 15px（smoothstep），越到后面越虚。开场 M = 16.5 → 16.733 清空（01 章 16.93 才出字）
+  const XF_M = 16.5, XF_END = XF_M + 0.25;
+  const xfade = (t, M) => {
+    const p = V.prog(t, M - 0.2, 0.433), q = V.prog(t, M - 0.17, 0.32);
+    return { p, o: 1 - p, y: -15 * q * q * (3 - 2 * q), blur: 6 * p * p };
+  };
 
   let cWrap, wash, title, subC, cards = [], worries = [], line1, line2, tiredSpan;
   V.addScene({
-    id: 'intro-plan', start: 6.9, end: 16.5,
+    id: 'intro-plan', start: 6.9, end: XF_END,
     build(root) {
       wash = V.el('div', { cls: 'intro-wash', parent: root, style: { opacity: 0 } });
       cWrap = V.el('div', { cls: 'layer', parent: root });
@@ -425,9 +431,9 @@
       const glow = V.prog(t, 13.48, 0.1) * (1 - E.outCubic(V.prog(t, 13.58, 1.2)));
       tiredSpan.style.textShadow = `0 0 ${(18 + 22 * glow).toFixed(1)}px rgba(255,40,40,${(0.55 + 0.35 * glow).toFixed(3)}), 0 0 4px rgba(255,70,60,.8)`;
 
-      // 结尾：整体模糊淡出（16.5 前完全消失）
-      const out = V.ep(t, C_OUT, C_OUT_D, E.inCubic);
-      V.set(cWrap, { o: 1 - out, blur: out * 3.5, s: 1 + out * 0.01 });
+      // 结尾：章节转场（淡出 + 上移 + 变虚，16.733 清空）
+      const xf = xfade(t, XF_M), out = xf.p;
+      V.set(cWrap, { o: xf.o, y: xf.y, blur: xf.blur, s: 1 + out * 0.01 });
       // 红色辉光随念头升起（10.85–11.8），淡出时一起退去
       wash.style.opacity = (V.ep(t, 10.85, 0.95, E.inOutSine) * (1 - out)).toFixed(3);
     },

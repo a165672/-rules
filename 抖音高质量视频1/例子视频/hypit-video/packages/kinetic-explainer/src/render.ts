@@ -24,8 +24,9 @@ const DESIGN_HEIGHT = 720;
 /**
  * The whole explainer is one coordinated scene: chapter marker, progress bar, background glow and
  * every chapter share one stage and one clock, so they are drawn by a single browser program.
- * Its internal schedule follows the program clock (seconds = frame / fps) because every reveal is
- * placed on a beat of the reused score.
+ * The scenes are choreographed on the reference score's beat grid; the engine's time map
+ * (web/engine.js, V.TIME_ANCHORS) converts program time on the chosen music to that design time
+ * beat for beat, absorbing tempo/section differences only in static holds.
  */
 export function renderExplainer(timeline: Timeline, canvas: CanvasSpace, window: TemporalWindow,
   fonts: ExplainerFonts, options: ExplainerOptions) {
@@ -66,7 +67,8 @@ stage.style.transformOrigin = '0 0';
 stage.style.transform = 'scale(' + data.scale + ')';
 root.appendChild(stage);
 KX.init(stage);
-return (frame) => KX.renderAt((data.startFrame + frame) * data.fpsDenominator / data.fpsNumerator);`,
+// 成片时间（新配乐）→ 设计时间的映射在引擎里（V.TIME_ANCHORS）
+return (frame) => KX.renderReal((data.startFrame + frame) * data.fpsDenominator / data.fpsNumerator);`,
   }, artifacts);
   return sealVisualTrack({
     id: options.id, programSpaceId: timeline.id, visualIr: "hypit.visual-ir@1",

@@ -13,7 +13,7 @@
  *  46.23 – 46.76  红色阶梯式退去（同频闪节奏），大字变灰并模糊消失
  *  46.72  标题「省电本能」逐字；47.65 红色下划线自左画出
  *  48.14  「省力本能 压过了 前额叶」；49.20「于是，你又躺下了。」；49.60 分隔线 + 49.70 脚注
- *  51.40 – 51.575  整体模糊淡出（ease-in，最后一帧仅剩约 9%，不跳切）
+ *  51.30 – 51.733  章节转场：线性淡出 + 整体上移 15px + 渐虚（与参考逐帧一致，跨过 51.6；03 章内容 51.95 才出现）
  */
 (function () {
   const { E } = V;
@@ -27,7 +27,13 @@
   const TAKE2_T = 44.81; // 「省电！」追加
   const TITLE_T = 46.72;
   const FOOT_T = V.beat(106); // ≈49.70 脚注（「于是，你又躺下了。」49.78 出齐之后）
-  const EXIT_T = 51.40, EXIT_D = 0.175; // 参考 51.5 仍清晰、51.5 起才淡出并越过 51.6；我们须在 51.6 前清空：ease-in，最后一帧(51.567)仅剩约 9%，切到下一章时不跳
+  // 章节转场（参考五处章节切换完全相同，逐帧实测）：以 M 为中点，M-0.2 → M+0.233 近似线性淡出，
+  // M-0.17 → M+0.15 整体上移 15px（smoothstep），越到后面越虚。本章 M = 51.5（参考 51.733 清空）
+  const XF_M = 51.5, XF_END = XF_M + 0.25;
+  const xfade = (t, M) => {
+    const p = V.prog(t, M - 0.2, 0.433), q = V.prog(t, M - 0.17, 0.32);
+    return { p, o: 1 - p, y: -15 * q * q * (3 - 2 * q), blur: 6 * p * p };
+  };
   const GROW_T = 41.8; // 红点开始膨胀（参考：41.8 → 43.6 近似匀速变大）
   const GROW_D = 1.8;
   const KICK_T = 42.22; // 「本能」重音（≈第 90 拍）
@@ -51,7 +57,8 @@
   .c02-lab.lime { color:#d2f73e; text-shadow:0 0 16px rgba(200,245,60,.38), 0 0 3px rgba(215,255,90,.5); }
   .c02-sub { font-size:19px; color:#8f8a84; font-weight:500; letter-spacing:.04em; }
   .c02-cap1 { font-size:24px; color:#9a9590; font-weight:500; letter-spacing:.05em; }
-  .c02-cap2 { font-size:41px; letter-spacing:.01em; color:#f4f0ea; text-shadow:0 0 18px rgba(255,245,235,.14); }
+  /* 宋体文案 44px：与 01 / 05 的同类文案一致（参考逐字比对 ≈ 41px × 1.07） */
+  .c02-cap2 { font-size:44px; letter-spacing:.01em; color:#f4f0ea; text-shadow:0 0 18px rgba(255,245,235,.14); }
 
   /* 红色警报 */
   .c02-abg { position:absolute; inset:0;
@@ -348,7 +355,7 @@
    * ===================================================================== */
   const C = {};
   V.addScene({
-    id: 'c02-title', start: 46.6, end: END,
+    id: 'c02-title', start: 46.6, end: XF_END,
     build(root) {
       C.wash = V.el('div', { cls: 'c02-wash', parent: root, style: { opacity: 0, background: 'radial-gradient(ellipse 60% 80% at 50% 56%, rgba(120,30,36,.18) 0%, rgba(100,24,32,.12) 45%, rgba(70,14,24,0) 100%)' } });
       C.wrap = V.el('div', { cls: 'c02-layer', parent: root });
@@ -384,9 +391,9 @@
       C.fline.style.transform = `scaleX(${fl.toFixed(4)})`;
 
       // 标题持续极缓慢推近；结尾整体模糊淡出
-      const out = V.ep(t, EXIT_T, EXIT_D, E.inQuad);
+      const xf = xfade(t, XF_M), out = xf.p;
       const drift = 1 + 0.012 * V.ep(t, TITLE_T, 4.5, E.outSine);
-      V.set(C.wrap, { o: 1 - out, blur: out * 10, y: -6 * out, s: drift * (1 + 0.015 * out) });
+      V.set(C.wrap, { o: xf.o, blur: xf.blur, y: xf.y, s: drift * (1 + 0.015 * out) });
       C.wash.style.opacity = (V.ep(t, 46.6, 0.5, E.inOutSine) * (1 - out)).toFixed(3);
     },
   });

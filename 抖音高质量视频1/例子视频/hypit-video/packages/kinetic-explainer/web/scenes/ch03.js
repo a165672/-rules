@@ -10,7 +10,7 @@
  *  58.02  右侧红框开始闪烁（≈1.0445s 一个周期，亮 0.525s / 暗，硬切）
  *  59.35  底部红色辉光大字「假装在休息」逐字
  *  60.32  灰色小字「刷手机，往往不是真正的休息。」逐字
- *  64.24 – 64.49  自下而上依次模糊上移淡出（64.5 前完全消失）
+ *  64.27 – 64.73  章节转场：自下而上依次线性淡出 + 整体上移 15px + 渐虚（与参考逐帧一致，跨过 64.5；04 章内容 65.12 才出现）
  */
 (function () {
   const { E } = V;
@@ -42,7 +42,9 @@
   // 红框闪烁：参考亮起于 58.033 / 59.067 / 60.133 / 61.167 / 62.233 / 63.267 / 64.30，每次亮 16 帧
   const T_BLINK = 58.02, BLINK_P = 1.0445, BLINK_ON = 0.525;
   const T_BIG = 59.35, T_FOOT = 60.32;
-  const OUT_END = 64.49; // 参考在 64.45 前仍完整可见、64.47 起自下而上淡出；本章必须在 64.5 前消失，故把同样的顺序压缩到最后约 0.25s
+  // 章节转场（参考五处章节切换完全相同，逐帧实测）：以 M 为中点，M-0.2 → M+0.233 近似线性淡出，
+  // M-0.17 → M+0.15 整体上移 15px（smoothstep）。本章保留自下而上的先后顺序（各元素起点相差 ≤0.06s）
+  const XF_M = 64.5, XF_END = XF_M + 0.25;
 
   /* ---------- 样式（c03- 前缀） ---------- */
   const css = `
@@ -86,7 +88,7 @@
   let vig, title, sub, rows = [], stick, divEl, right, rbox, big, foot;
 
   V.addScene({
-    id: 'ch03', start: START, end: END,
+    id: 'ch03', start: START, end: XF_END,
     build(root) {
       vig = V.el('div', { cls: 'c03-vig', parent: root });
       /* 标题 + 副标题 */
@@ -124,12 +126,13 @@
 
     update(lt, t) {
       /* 两侧压暗：章节开头随背景过渡淡入，出场时淡出（与 04 的背景无缝衔接） */
-      vig.style.opacity = (V.ep(t, START, 0.8, E.inOutSine) * (1 - V.ep(t, 64.0, 0.48, E.inOutSine))).toFixed(3);
+      vig.style.opacity = (V.ep(t, START, 0.8, E.inOutSine) * (1 - V.ep(t, 64.2, 0.53, E.inOutSine))).toFixed(3);
 
-      /* 出场：自下而上依次模糊、上移、淡出，64.49 前全部消失 */
+      /* 出场：自下而上依次线性淡出（64.27 起，0.4s），整体上移 15px，64.733 前全部消失 */
+      const xq = V.prog(t, XF_M - 0.17, 0.32), xy = -15 * xq * xq * (3 - 2 * xq);
       const out = (s) => {
-        const p = V.ep(t, s, OUT_END - s, E.inOutSine);
-        return { o: 1 - p, blur: p * 12, y: -10 * p };
+        const p = V.prog(t, 64.27 + (s - 64.24) * 0.6, 0.4);
+        return { o: 1 - p, blur: 6 * p * p, y: xy };
       };
 
       /* 标题 / 副标题 */
