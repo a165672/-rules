@@ -181,7 +181,7 @@
     layout() {
       // 依据实际字宽，把「46.9%」与说明作为一组水平居中
       // 「万」弹出前数字自身居中，弹出时整组滑到最终居中位置
-      for (const c of B.cols) c.shift = c.unit ? c.unit.getBoundingClientRect().width / 2 + 1.5 : 0;
+      for (const c of B.cols) c.shift = c.unit ? c.unit.offsetWidth / 2 + 1.5 : 0;
       const GAP = 34;
       const sw = B.stat.offsetWidth, cw = B.cap.el.offsetWidth;
       const x0 = 640 - (sw + GAP + cw) / 2;
@@ -190,7 +190,7 @@
       B._laid = true;
     },
     update(lt, t) {
-      if (!B._laid) this.layout();
+      this.layout(); // 每帧按实际字宽排版（字体加载、任意起始帧都成立）
       B.title.reveal(t, 73.62, { stagger: 0.025, dur: 0.3, blur: 8, dy: 5 });
 
       // 数字滚动计数

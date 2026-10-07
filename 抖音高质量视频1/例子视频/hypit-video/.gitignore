@@ -1,0 +1,10 @@
+node_modules/
+.hypit/
+build/
+tools/hypit-state/
+tools/chrome/
+assets/fonts/*.otf
+assets/music/
+packages/*/node_modules
+packages/*/dist/
+packages/*/src/web-bundle.ts

@@ -1,13 +1,14 @@
 #!/usr/bin/env node
 /*
- * 逐帧渲染器（Playwright + Chromium）
+ * 快速预览器（Playwright + Chromium）：直接打开组件的独立预览页，与参考视频同一时刻上下对比。
+ * 成片由 Hypit 渲染（见 README）；这里只用于迭代动效时快速看帧。
  *
  * 预览若干时刻（1280×720 PNG，可与参考视频同一时刻并排对比）：
- *   node render/render.js preview --times 2,4.5,10 --out build/preview/intro [--compare] [--scale 1]
- *   node render/render.js preview --from 16.5 --to 35.5 --step 1 --out build/preview/ch01 --compare
+ *   node tools/preview.cjs preview --times 2,4.5,10 --out build/preview/intro [--compare] [--scale 1]
+ *   node tools/preview.cjs preview --from 16.5 --to 35.5 --step 1 --out build/preview/ch01 --compare
  *
  * 渲染全片帧序列（1920×1080 JPEG），再交给 ffmpeg 合成：
- *   node render/render.js frames --out build/frames [--from 0 --to 110.2] [--workers 4] [--scale 1.5]
+ *   node tools/preview.cjs frames --out build/frames [--from 0 --to 110.2] [--workers 4] [--scale 1.5]
  */
 const path = require('path');
 const fs = require('fs');
@@ -16,9 +17,9 @@ const { spawnSync } = require('child_process');
 let pw;
 try { pw = require('playwright'); } catch (e) { pw = require('/opt/node-tools/node_modules/playwright'); }
 
-const ROOT = path.resolve(__dirname, '..');
-const PAGE = 'file://' + path.join(ROOT, 'src', 'index.html');
-const REF = path.join(ROOT, 'reference', '参考视频.mp4');
+const ROOT = path.resolve(__dirname, '..'); // hypit-video/
+const PAGE = 'file://' + path.join(ROOT, 'packages', 'kinetic-explainer', 'web', 'index.html');
+const REF = path.join(ROOT, '..', 'reference', '参考视频.mp4');
 const FPS = 30, DURATION = 110.2;
 
 function args() {
@@ -143,5 +144,5 @@ async function frames(o) {
   const o = args();
   if (o.mode === 'preview') await preview(o);
   else if (o.mode === 'frames') await frames(o);
-  else { console.log('usage: node render/render.js preview|frames [...]'); process.exit(1); }
+  else { console.log('usage: node tools/preview.cjs preview|frames [...]'); process.exit(1); }
 })().catch((e) => { console.error(e); process.exit(1); });

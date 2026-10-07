@@ -149,10 +149,10 @@
       });
 
       /* 贴纸：压扁的小胶囊 → 回弹放大 → 落定，带 -4° 倾斜 */
-      if (stick._x == null) {
-        // 位置依赖字体排版：第一次 update 时（字体已加载）测量第 1 行文字宽度
-        stick._x = LABEL_X + rows[0].lab.offsetWidth + 48 + stick.offsetWidth / 2;
-        V.place(stick, stick._x, ROW_Y0 - 2, 'c');
+      {
+        // 位置依赖字体排版：每帧按第 1 行的实际字宽定位（字体可能在之后才加载完）
+        const sx = LABEL_X + rows[0].lab.offsetWidth + 48 + stick.offsetWidth / 2;
+        if (sx !== stick._x) { stick._x = sx; V.place(stick, sx, ROW_Y0 - 2, 'c'); }
       }
       {
         const p = V.prog(t, T_STICK, 0.4);

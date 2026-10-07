@@ -302,8 +302,11 @@
 
   /* ---------------- build / render ---------------- */
   let stage, bgGlow, grain, grainCtx, scenesLayer, chrome, flashEl, mark, markNum, markName, markSq, fill, chromeEls;
-  V.init = () => {
-    stage = document.getElementById('stage');
+  /** build every layer and scene inside `stageEl` (defaults to #stage in the standalone preview) */
+  V.init = (stageEl) => {
+    if (V._inited) return;
+    V._inited = true;
+    stage = stageEl || document.getElementById('stage');
     V.bgKeys.sort((a, b) => a[0] - b[0]);
     const bg = V.el('div', { cls: 'layer', parent: stage, attrs: { id: 'bg' } });
     bgGlow = V.el('div', { cls: 'layer', parent: bg });
@@ -404,7 +407,14 @@
     return Array.from(new Set(Array.from(s))).join('');
   };
 
-  V.ready = (async () => {
+  /** register @font-face rules: [{ family, weight, url }] */
+  V.installFonts = (faces) => {
+    const css = faces.map((f) => `@font-face{font-family:'${f.family}';src:url('${f.url}');font-weight:${f.weight};font-style:normal;font-display:block;}`).join('\n');
+    V.el('style', { text: css, parent: document.head });
+  };
+
+  // Hypit 渲染（browser program）里由 setup 主动调用 V.init；独立预览页面则在 DOM 就绪后自动初始化
+  V.ready = window.__KX_PROGRAM__ ? Promise.resolve(true) : (async () => {
     await new Promise((r) => (document.readyState === 'loading' ? document.addEventListener('DOMContentLoaded', r) : r()));
     V.init();
     const txt = V.allText();

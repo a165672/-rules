@@ -1,0 +1,11 @@
+{
+  "format": "hypit.runtime-local@1",
+  "dataRoot": ".hypit/runtimes/local",
+  "endpoints": {
+    "media.local": { "use": "@hypit/provider-media-local", "config": { "defaultConcurrency": 2 } },
+    "hyperframes.local": {
+      "use": "@hypit/provider-hyperframes-local",
+      "config": { "workers": 3, "defaultConcurrency": 1, "browserGpu": "software", "browserCacheDirectory": "../../../tools/chrome" }
+    }
+  }
+}

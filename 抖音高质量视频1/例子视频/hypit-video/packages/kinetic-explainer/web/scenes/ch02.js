@@ -361,7 +361,7 @@
       C.foot = new V.Text(C.wrap, '大脑只占体重的 <w class="c02-num">2%</w>，却消耗约 <w class="c02-num">20%</w> 的能量。', { cls: 'c02-foot', x: 640, y: 600 });
     },
     update(lt, t) {
-      if (C.uw == null || C.uw < 10) {
+      if (C.title.el.offsetWidth !== C.uw) { // 字体加载前后字宽不同：宽度变化时重新排版
         C.uw = C.title.el.offsetWidth;
         const w = C.uw - 6;
         C.uline.style.left = (640 - w / 2).toFixed(1) + 'px';

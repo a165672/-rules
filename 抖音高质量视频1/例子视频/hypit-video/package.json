@@ -1,0 +1,19 @@
+{
+  "name": "lazy-tired-video",
+  "private": true,
+  "type": "module",
+  "description": "为什么你什么都不干，却还是很累 —— Hypit 纯动效视频工程",
+  "devDependencies": {
+    "@hypit/hypit": "0.2.17",
+    "typescript": "5.9.3",
+    "@types/node": "24.10.1"
+  },
+  "dependencies": {
+    "@lazy/kinetic-explainer": "file:packages/kinetic-explainer"
+  },
+  "scripts": {
+    "build:component": "npm --prefix packages/kinetic-explainer run build",
+    "check": "hypit check productions/why-tired/authors/main.svml",
+    "render": "hypit build productions/why-tired/runs/final.svrun --title final --follow"
+  }
+}

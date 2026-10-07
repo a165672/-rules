@@ -1,7 +1,7 @@
 build/
-tools/fonts/*.otf
 node_modules/
-# 用户上传的参考视频及其衍生文件（配乐、截帧）只保留在本地，不提交
+# 用户上传的参考视频及其衍生文件（截帧）与成片只保留在本地，不提交
 reference/
-audio/
 output/
+# 从 GitHub 克隆的 hypit-ai/hypit（已作为 Skill 部署：~/.claude/skills/hypit -> tools/hypit/skills/hypit）
+tools/hypit/

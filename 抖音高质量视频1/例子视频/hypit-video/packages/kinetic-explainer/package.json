@@ -1,0 +1,16 @@
+{
+  "name": "@lazy/kinetic-explainer",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "《为什么你什么都不干，却还是很累》的动态排版场景：整片 110.2s 的画面由一个 browser program 逐帧绘制",
+  "hypit": { "activation": "./dist/activation.js" },
+  "exports": { ".": "./dist/render.js" },
+  "files": ["dist", "web", "README.md"],
+  "scripts": {
+    "bundle": "node scripts/bundle.mjs",
+    "build": "node scripts/bundle.mjs && tsc -p tsconfig.json",
+    "prepack": "npm run build"
+  },
+  "devDependencies": { "@hypit/hypit": "0.2.17", "typescript": "5.9.3", "@types/node": "24.10.1" }
+}
