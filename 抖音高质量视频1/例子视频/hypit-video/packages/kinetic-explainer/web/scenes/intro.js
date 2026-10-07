@@ -31,7 +31,7 @@
     background:radial-gradient(ellipse 52% 88% at 50% 52%, rgba(150,40,46,.17) 0%, rgba(150,40,46,.13) 50%, rgba(150,40,46,0) 100%); }
   .intro-flash { position:absolute; inset:0; pointer-events:none;
     background:radial-gradient(ellipse 700px 1100px at 640px 360px, rgba(251,250,249,1) 0%, rgba(251,250,249,1) 36%, rgba(251,250,249,.85) 53%, rgba(251,250,249,.69) 71%, rgba(251,250,249,.55) 89%, rgba(251,250,249,.44) 97%, rgba(251,250,249,.42) 100%); }
-  .intro-strike { position:absolute; left:0; top:0; height:8px; border-radius:4px; background:#f4efe8;
+  .intro-strike { position:absolute; left:0; top:0; height:9px; border-radius:4.5px; background:#f4efe8;
     box-shadow:0 0 10px rgba(255,255,255,.45), 0 0 2px rgba(255,255,255,.8); transform-origin:left center; }
   .intro-card { position:absolute; width:320px; height:80px; box-sizing:border-box; border-radius:12px;
     border:1.5px solid rgba(255,255,255,.12); background:rgba(255,255,255,.035); }
@@ -70,7 +70,8 @@
   const drift = (t) => 200 * (Math.exp(1.5 * t) - 1);
   const speed = (t) => 300 * Math.exp(1.5 * t);
   // 中间大字的重拍（参考逐帧：0.5 / 0.8 / 1.1 各砸一次，首帧放大 ≈1.35 倍、两帧内回到原大小）
-  const SW = 0.8, R1 = 0.5, R2 = 1.1;
+  // 阈值比参考帧（第 15 / 24 / 33 帧）早 0.01s，保证 t = 帧号/30 时稳定落在新状态
+  const SW = 0.79, R1 = 0.49, R2 = 1.09;
 
   let rows = [], words;
   V.addScene({
@@ -119,14 +120,15 @@
         const sd = `${sx} ${sy}`;
         if (sd !== r.last) { r.g.setAttribute('stdDeviation', sd); r.last = sd; }
       }
-      // 中间大字：0.5 变红 → 0.8 换成“明天再开始”（白）→ 1.1 再变红；每次都从 1.35 倍砸回
+      // 中间大字：0.5 变红 → 0.8 换成“明天再开始”（白）→ 1.1 再变红；每次都从 1.35 倍砸回（两帧内回到原大小）
       const idx = t < SW ? 0 : 1;
       words.forEach((w, i) => { w.el.style.opacity = i === idx ? 1 : 0; });
       const w = words[idx];
       const red = (idx === 0 && t >= R1) || (idx === 1 && t >= R2);
       const kick = t >= R2 ? R2 : t >= SW ? SW : t >= R1 ? R1 : -9;
       const kd = Math.max(0, t - kick);
-      const punch = 1 + 0.35 * Math.exp(-60 * kd);
+      const kk = Math.min(1, Math.exp(-60 * (kd - 0.012)));
+      const punch = 1 + 0.35 * kk;
       if (red) {
         w.el.style.color = '#ff2f2c';
         w.el.style.textShadow = '0 0 22px rgba(255,35,35,.75), 0 0 54px rgba(255,30,30,.35), 0 0 3px rgba(255,90,80,.9)';
@@ -137,7 +139,7 @@
       // 整体：持续轻微推近；结尾（白闪前）略放大提亮
       const push = 1 + 0.025 * t;
       const endP = E.inCubic(V.prog(t, 1.36, 0.09));
-      V.set(w.el, { s: punch * push * (1 + 0.03 * endP), blur: 5 * Math.exp(-60 * kd) });
+      V.set(w.el, { s: punch * push * (1 + 0.03 * endP), blur: 5 * kk });
       V.set(root._wall, { s: 1 + 0.02 * endP, bright: 1 + 0.3 * endP });
     },
   });
@@ -204,11 +206,15 @@
       }
       h1 = new V.Text(bWrap, '你不是<r>懒</r>。', { cls: 'serif', x: 640, y: 246, style: { fontSize: '134px', letterSpacing: '-0.01em' } });
       lazy = h1.chars[3];
+      // 参考里“懒”是不发光的实心红（≈#f93b33），只留极淡的一圈
+      const lazyR = h1.el.querySelector('.r');
+      lazyR.style.color = '#f93b33';
+      lazyR.style.textShadow = '0 0 8px rgba(255,45,40,.15)';
       // 白色划线：挂在标题块里（随标题缩放/抖动），每帧按“懒”的实际排版位置定位
       strikeEl = V.el('div', { cls: 'intro-strike', parent: h1.el, style: { opacity: 0 } });
 
       sub = new V.Text(bWrap, '你只是，被困在一个', { x: 640, y: 435, style: { fontSize: '29px', color: '#8b888b', fontWeight: 500, letterSpacing: '.05em' } });
-      big = new V.Text(bWrap, '内耗循环', { cls: 'serif', x: 640, y: 533, style: { fontSize: '90px', textShadow: '0 0 4px rgba(255,248,240,.85), 0 0 12px rgba(255,244,236,.55), 0 0 30px rgba(255,240,230,.2)' } });
+      big = new V.Text(bWrap, '内耗循环', { cls: 'serif', x: 640, y: 530, style: { fontSize: '90px', textShadow: '0 0 4px rgba(255,248,240,.85), 0 0 12px rgba(255,244,236,.55), 0 0 30px rgba(255,240,230,.2)' } });
 
       svg = V.svgLayer(bWrap);
       svg.style.filter = 'drop-shadow(0 0 5px rgba(255,40,40,.8))';
@@ -235,22 +241,22 @@
       const [sx, sy] = shakeAt(t);
       bWrap.style.transform = sx || sy ? `translate(${sx}px,${sy}px)` : 'none';
 
-      // 退场：标题先走（6.33 起），其余晚 0.04s（参考 6.47 / 6.51 消失）
-      const oT = 1 - E.inQuad(V.prog(t, 6.33, 0.2));
-      const oB = 1 - E.inQuad(V.prog(t, 6.37, 0.2));
+      // 退场：参考是整体变暗为主、轻微发虚——标题 6.3 起近似线性暗下去，6.73 消失；其余晚 ≈0.03s
+      const oT = 1 - E.inOutSine(V.prog(t, 6.27, 0.5));
+      const oB = 1 - E.inOutSine(V.prog(t, 6.3, 0.5));
 
       // 主标题：闪白那一帧已是放大 ≈1.87 倍的完整标题，随后指数回落（参考 1.5:1.42 / 1.533:1.21 / 1.6:1.05）
       h1.reveal(t, 1.44, { stagger: 0.004, dur: 0.04, blur: 10, dy: 0 });
       const dz = t - 1.4667;
       const zs = Math.min(2.0, 1 + 0.87 * Math.exp(-21.5 * dz));
       const zb = Math.min(10, 8 * Math.exp(-30 * dz));
-      V.set(h1.el, { o: oT, s: zs, blur: (1 - oT) * 10 + zb });
+      V.set(h1.el, { o: oT, s: zs, blur: (1 - oT) * 4 + zb });
 
       // 白线划掉“懒”：2.28 起 0.2s 从左往右划过（参考 2.367 到“懒”左缘、2.47 到头）
       const L = lazy.offsetLeft, W = lazy.offsetWidth, T = lazy.offsetTop, H = lazy.offsetHeight;
       strikeEl.style.left = (L - 0.58 * W).toFixed(1) + 'px';
       strikeEl.style.width = (W * 1.7).toFixed(1) + 'px';
-      strikeEl.style.top = (T + H * 0.555 - 4).toFixed(1) + 'px';
+      strikeEl.style.top = (T + H * 0.571 - 4.5).toFixed(1) + 'px';
       const sp = E.inOutSine(V.prog(t, 2.28, 0.2));
       strikeEl.style.transform = `scaleX(${sp.toFixed(4)})`;
       strikeEl.style.opacity = sp > 0 ? 1 : 0;
@@ -291,9 +297,9 @@
 
       // 副标题 3.28 起逐字；大字 3.845 整词带模糊放大落下（参考 3.867 首帧、3.93 清晰）
       sub.reveal(t, 3.28, { stagger: 0.028, dur: 0.3, blur: 8, dy: 6 });
-      V.set(sub.el, { o: oB, blur: (1 - oB) * 8 });
+      V.set(sub.el, { o: oB, blur: (1 - oB) * 3 });
       big.reveal(t, 3.845, { stagger: 0.01, dur: 0.12, blur: 14, dy: 0, scale: 1.18 });
-      V.set(big.el, { o: oB, blur: (1 - oB) * 10 });
+      V.set(big.el, { o: oB, blur: (1 - oB) * 4 });
 
       // 椭圆描边（3.97–4.41，从左上顺时针、越画越快）+ 光点 4.24 出现后加速绕行
       const pd = E.inQuad(V.prog(t, 3.97, 0.44));
@@ -317,11 +323,11 @@
   /* =====================================================================
    * C：你心里有很多想做的事 6.9 – 16.5
    * ===================================================================== */
-  // 卡片入场（参考：7.82 / 8.15 / 8.52 起，从下方 22px 升起、略冲过头再落定）
+  // 卡片入场（参考：7.75 / 8.09 / 8.46 起淡入，从下方升起、略冲过头 ≈4px 再落定）
   const CARDS = [
-    { text: '早起跑步', x: 267, t: 7.81, ph: 0.0 },
-    { text: '学一项新技能', x: 640, t: 8.15, ph: 2.1 },
-    { text: '把房间收拾干净', x: 1013, t: 8.51, ph: 4.4 },
+    { text: '早起跑步', x: 267, t: 7.75, ph: 0.0 },
+    { text: '学一项新技能', x: 640, t: 8.09, ph: 2.1 },
+    { text: '把房间收拾干净', x: 1013, t: 8.46, ph: 4.4 },
   ];
   const CARD_Y = 320;
   const backOut = (x) => { const c1 = 2.2, c3 = c1 + 1; return 1 + c3 * Math.pow(x - 1, 3) + c1 * Math.pow(x - 1, 2); };
@@ -363,21 +369,21 @@
       tiredSpan.style.display = 'inline-block';
     },
     update(lt, t) {
-      // 标题 7.15 起逐字（参考 7.17 首字、7.67 写完）/ 副标题 8.28 起
-      title.reveal(t, 7.15, { stagger: 0.03, dur: 0.3, blur: 12, dy: 8 });
-      subC.reveal(t, 8.28, { stagger: 0.03, dur: 0.32, blur: 8, dy: 6 });
+      // 标题 7.06 起逐字（参考 7.07 首字淡入、每字 ≈0.045s）/ 副标题 8.24 起
+      title.reveal(t, 7.06, { stagger: 0.04, dur: 0.3, blur: 12, dy: 8 });
+      subC.reveal(t, 8.24, { stagger: 0.03, dur: 0.32, blur: 8, dy: 6 });
 
       // 卡片：逐张模糊升起（带一点回弹）；10.75 起红色念头出现，卡片开始发抖、边框变红
       const tense = V.ep(t, 10.75, 0.8, E.inOutSine);
       const redB = V.ep(t, 10.8, 1.5, E.inOutSine);
       cards.forEach((c) => {
-        const u = V.prog(t, c.t, 0.5);
-        const pa = V.ep(t, c.t, 0.16, E.outQuad);
-        const pb = V.ep(t, c.t, 0.22, E.outCubic);
+        const u = V.prog(t, c.t, 0.6);
+        const pa = V.ep(t, c.t, 0.18, E.outQuad);
+        const pb = V.ep(t, c.t, 0.18, E.outCubic);
         const sh = tense;
         const dx = sh * (3.0 * Math.sin(t * 31.4 + c.ph) + 1.2 * Math.sin(t * 53.1 + c.ph * 1.7));
         const dy = sh * (1.5 * Math.sin(t * 26.7 + c.ph * 2.3) + 0.6 * Math.sin(t * 61.3 + c.ph));
-        V.set(c.el, { o: pa, y: 22 * (1 - backOut(u)) + dy, x: dx, s: V.lerp(0.97, 1, pb), blur: (1 - pb) * 8 });
+        V.set(c.el, { o: pa, y: 24 * (1 - backOut(u)) + dy, x: dx, s: V.lerp(0.97, 1, pb), blur: (1 - pb) * 6 });
         if (c._rb !== redB) {
           c._rb = redB;
           const a = (0.12 + 0.34 * redB).toFixed(3);
@@ -399,12 +405,13 @@
         V.set(w.el, { o, s, x: dx, y: dy, blur: (1 - p) * 5 });
       });
 
-      // 底部两行（参考：小字 12.89 起、13.1 读完；大字 13.25 起逐字，红字 13.43–13.6 亮起）
-      line1.reveal(t, 12.88, { stagger: 0.018, dur: 0.2, blur: 8, dy: 6 });
-      const L2 = [13.25, 13.295, 13.34, 13.385, 13.43, 13.5, 13.55];
+      // 底部两行（参考：小字 12.79 起、13.0 读完；大字 13.09 起逐字 ≈0.045s/字，红字 13.40–13.6 亮起）
+      line1.reveal(t, 12.79, { stagger: 0.025, dur: 0.22, blur: 8, dy: 6 });
+      // 你却已经（13.09 起逐字）→ 停半拍 → “累”13.40–13.6 慢慢亮起 → 了。
+      const L2 = [13.09, 13.14, 13.19, 13.24, 13.4, 13.5, 13.55];
       line2.chars.forEach((c, i) => {
         const key = i === 4;
-        const p = E.outCubic(V.prog(t, L2[i], key ? 0.18 : 0.22));
+        const p = key ? E.inOutSine(V.prog(t, L2[i], 0.2)) : E.outCubic(V.prog(t, L2[i], 0.2));
         if (c._p === p) return;
         c._p = p;
         c.style.opacity = p >= 0.999 ? 1 : p.toFixed(4);
@@ -412,15 +419,15 @@
         c.style.transform = p >= 0.999 || key ? 'none' : `translateY(${((1 - p) * 6).toFixed(2)}px)`;
       });
       // “累”：轻微放大回落 + 辉光在落点爆亮后回落
-      const kp = V.prog(t, 13.43, 0.3);
+      const kp = V.prog(t, 13.4, 0.32);
       const sc = V.lerp(1.12, 1, E.outCubic(kp));
       tiredSpan.style.transform = kp >= 1 ? 'none' : `scale(${sc.toFixed(4)})`;
-      const glow = 1 - E.outCubic(V.prog(t, 13.52, 1.2));
+      const glow = V.prog(t, 13.48, 0.1) * (1 - E.outCubic(V.prog(t, 13.58, 1.2)));
       tiredSpan.style.textShadow = `0 0 ${(18 + 22 * glow).toFixed(1)}px rgba(255,40,40,${(0.55 + 0.35 * glow).toFixed(3)}), 0 0 4px rgba(255,70,60,.8)`;
 
       // 结尾：整体模糊淡出（16.5 前完全消失）
       const out = V.ep(t, C_OUT, C_OUT_D, E.inCubic);
-      V.set(cWrap, { o: 1 - out, blur: out * 14, s: 1 + out * 0.015 });
+      V.set(cWrap, { o: 1 - out, blur: out * 3.5, s: 1 + out * 0.01 });
       // 红色辉光随念头升起（10.85–11.8），淡出时一起退去
       wash.style.opacity = (V.ep(t, 10.85, 0.95, E.inOutSine) * (1 - out)).toFixed(3);
     },

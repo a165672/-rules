@@ -2,14 +2,14 @@
  *
  * 时间轴（与参考视频「可你明明很忙?」同一时刻对齐，数值取自参考逐帧测量）：
  *  51.95  标题「可你明明在休息？」逐字：先以暗灰、近乎清晰出现，再提亮（参考同款，非大模糊）
- *  52.68  副标题「身体躺平了，大脑却在加班。」逐字
+ *  52.68  副标题「身体躺平了，大脑却在“加班”。」逐字
  *  53.53 / 54.07 / 54.63 / 55.16 / 55.74  左侧清单逐行自右滑入
  *  53.68 / 54.21 / 54.78 / 55.35 / 55.88  每行方框先出现起笔圆点，再加速画完勾（≈0.25s）
  *  56.75  红色倾斜贴纸「比如现在」弹出（第 1 行旁）
  *  57.52  右侧整块淡入：☐ 真正的休息 + 进度条 0%；57.58 中间竖线自上而下快速画出
  *  58.02  右侧红框开始闪烁（≈1.0445s 一个周期，亮 0.525s / 暗，硬切）
  *  59.35  底部红色辉光大字「假装在休息」逐字
- *  60.32  灰色小字「身体在躺，大脑在跑。」逐字
+ *  60.32  灰色小字「刷手机，往往不是真正的休息。」逐字
  *  64.24 – 64.49  自下而上依次模糊上移淡出（64.5 前完全消失）
  */
 (function () {
@@ -71,7 +71,7 @@
     box-shadow:0 0 5px rgba(255,50,70,.65); }
   .c03-pct { font-size:27px; font-weight:700; color:#c93444; letter-spacing:.01em; }
   .c03-big { font-size:46px; letter-spacing:0; color:#ff4440;
-    text-shadow:0 0 16px rgba(255,40,36,.85), 0 0 34px rgba(255,30,30,.42), 0 0 4px rgba(255,90,80,.85); }
+    text-shadow:-.5px -1.5px 0 rgba(165,140,142,.5), 1px 2px 0 rgba(140,10,6,.7), 0 0 13px rgba(255,40,36,.85), 0 0 24px rgba(255,30,30,.34), 0 0 4px rgba(255,90,80,.85); }
   .c03-foot { font-size:22px; color:#96959a; font-weight:500; letter-spacing:.04em; }
   `;
   V.el('style', { text: css, parent: document.head });
@@ -91,7 +91,7 @@
       vig = V.el('div', { cls: 'c03-vig', parent: root });
       /* 标题 + 副标题 */
       title = new V.Text(root, '可你明明在休息？', { cls: 'serif c03-title', x: 655, y: TITLE_Y }); // 全角问号右侧留白：x+15 使字形视觉居中
-      sub = new V.Text(root, '身体躺平了，大脑却在加班。', { cls: 'c03-sub', x: 648, y: SUB_Y });
+      sub = new V.Text(root, '身体躺平了，大脑却在“加班”。', { cls: 'c03-sub', x: 648, y: SUB_Y });
 
       /* 左侧清单 */
       const rowsWrap = V.el('div', { cls: 'c03-layer', parent: root });
@@ -119,7 +119,7 @@
 
       /* 底部 */
       big = new V.Text(root, '假装在休息', { cls: 'serif c03-big', x: 640, y: BIG_Y });
-      foot = new V.Text(root, '身体在躺，大脑在跑。', { cls: 'c03-foot', x: 647, y: FOOT_Y });
+      foot = new V.Text(root, '刷手机，往往不是真正的休息。', { cls: 'c03-foot', x: 647, y: FOOT_Y });
     },
 
     update(lt, t) {

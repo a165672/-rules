@@ -1,16 +1,17 @@
 /* 05 解法 83.6 – 110.2（荧光绿章节；所有时间点均按参考视频逐帧实测对齐）
- *  A 83.98 – 88.14  听起来反直觉，但答案是： → 85.05 重拍（第 182 拍）荧光绿巨字「先动起来。」+ 镜头轻震
- *  B 88.15 – 92.18  计时环 00:00 → 05:00（88.62–91.45 inOutCubic，与参考计数曲线一致）+ 只动 5 分钟 / 副标题 / 脚注
- *  C 92.24 – 96.34  ① 把念头写下来 → 三个红色胶囊依次弹出 → 写下来，再定个时间， / 大脑才肯关掉后台。
- *  D 96.35 – 100.75 ② 把第一步缩到可笑：左右两列 灰字 → 红线划掉 → 箭头 → 荧光绿新任务；100.42 起与顶部章节标记一起上移淡出
+ *  A 83.93 – 88.13  听起来反直觉，但答案是： → 85.05 重拍（第 182 拍）荧光绿巨字「先动起来。」+ 镜头轻震
+ *  B 88.15 – 92.18  计时环 00:00 → 05:00（88.62–91.45 inOutCubic，与参考计数曲线一致）+ 只动 5 分钟 / 副标题 / 脚注 + 出处小字
+ *  C 92.24 – 96.34  ① 给它一个具体计划 → 三个红色胶囊依次弹出 → 写清：哪天、几点、先做哪一步， / 脑子才更容易把它放下。
+ *  D 96.35 – 100.72 ② 把第一步缩到可笑：左右两列 灰字 → 红线划掉 → 箭头 → 荧光绿新任务；100.37 起与顶部章节标记一起上移淡出
  *  E 100.74 – 102.8 红色圆环 + 白色光点绕行 → 101.96 断裂成碎片爆散 → 102.34 荧光绿播放键弹出
- *  F 103.1 – 110.2  ▶ 现在，放下手机。/ 站起来，去做那件事的第一步。/ 脚注；109.78 起整体模糊变暗（引擎淡出到黑）
+ *  F 103.1 – 110.2  ▶ 现在，放下手机。/ 站起来，去做那件事的第一步。/ 脚注 + 就医提示小字；109.78 起整体模糊变暗（引擎淡出到黑）
  */
 (function () {
   const { E } = V;
 
   /* ---------- 背景辉光（> 83.6 的关键帧归本文件管理） ----------
-   * 参考：84–85 近乎中性的暗色 → 85.0 重拍时橄榄绿辉光升起 → 100.4 起转红（圆环段）→ 102.5–103 回到绿色 */
+   * 参考：84–85 近乎中性的暗色 → 85.0 重拍时橄榄绿辉光升起 → ≈99.8–100.72 绿光退成中性暗底（与 D 段出场同步）
+   * → 100.72–101.2 红光升起（圆环段）→ 102.5–103 回到绿色 */
   for (let i = V.bgKeys.length - 1; i >= 0; i--) if (V.bgKeys[i][0] > 83.6) V.bgKeys.splice(i, 1);
   const NEU = [70, 60, 80, 0.04, 50, 45];
   const LIME = [128, 150, 52, 0.12, 50, 42];
@@ -20,8 +21,9 @@
     [84.5, ...NEU],
     [84.98, ...NEU],
     [85.5, ...LIME],
-    [100.35, ...LIME],
-    [100.9, ...RED],
+    [99.82, ...LIME],
+    [100.72, ...NEU],
+    [101.2, ...RED],
     [102.4, ...RED],
     [103.05, ...LIME2],
     [110.2, ...LIME2],
@@ -46,6 +48,7 @@
     box-shadow:0 0 12px rgba(255,45,45,.42), inset 0 0 9px rgba(255,45,45,.16); text-shadow:0 0 8px rgba(255,45,45,.45); }
   .c05-foot { color:#7d7b72; font-weight:500; letter-spacing:.06em; }
   .c05-foot .g { text-shadow:0 0 10px rgba(200,245,60,.45); }
+  .c05-src { color:#5c5a53; font-weight:400; letter-spacing:.05em; }
   /* 参考：顶部章节标记随 D 段一起上移淡出（≈100.42–100.75），此后（圆环 / 爆散 / 结语）不再出现。
    * 引擎每帧会写 mark 的行内 opacity/filter，这里用 !important 覆盖；规则只在 c05-mk 场景显示时生效
    * （:has 匹配引擎设置的 display:block），所以任何时刻跳转/回放都是 t 的纯函数，不影响其它章节。 */
@@ -60,9 +63,11 @@
   const WASH = [
     [84.95, 150, 175, 60, 0],
     [85.45, 150, 175, 60, 0.11],
-    [100.35, 150, 175, 60, 0.11],
-    [100.9, 190, 40, 58, 0.17],
-    [102.4, 190, 40, 58, 0.17],
+    [99.75, 150, 175, 60, 0.11],
+    [100.71, 150, 175, 60, 0],
+    [100.72, 190, 40, 58, 0],
+    [101.15, 190, 40, 58, 0.15],
+    [102.4, 190, 40, 58, 0.15],
     [103.0, 150, 175, 60, 0.145],
     [110.2, 150, 175, 60, 0.145],
   ];
@@ -88,9 +93,9 @@
     },
   });
 
-  /** whole-group exit: fade + blur (+ optional drift). 参考的出场以淡出为主，模糊在后半段才明显（≈k²） */
-  const exitGroup = (el, t, s, d = 0.34, o = {}) => {
-    const k = V.ep(t, s, d, E.inOutCubic);
+  /** whole-group exit: fade + blur (+ optional drift). 参考逐帧：出场约 0.37s、亮度近似线性下降，模糊在后半段才明显（≈k²） */
+  const exitGroup = (el, t, s, d = 0.37, o = {}) => {
+    const k = V.prog(t, s, d);
     V.set(el, { o: 1 - k, blur: k * k * (o.blur ?? 10), y: k * (o.dy || 0), s: 1 + k * (o.ds || 0) });
     return k;
   };
@@ -99,7 +104,7 @@
    * A：听起来反直觉，但答案是： → 先动起来。  83.6 – 88.15
    * ===================================================================== */
   const A_HIT = V.beat(182) + 0.05; // ≈85.05（参考 85.067 帧首次出现）
-  const A_OUT = 87.84;
+  const A_OUT = 87.75;
   let aWrap, aLine, aBig;
   V.addScene({
     id: 'c05-a', start: 83.6, end: 88.15,
@@ -109,12 +114,12 @@
       aBig = new V.Text(aWrap, '先动起来。', { cls: 'serif c05-big', x: 640, y: 400 });
     },
     update(lt, t) {
-      aLine.reveal(t, 83.98, { stagger: 0.035, dur: 0.32, blur: 9, dy: 6 });
-      // 重拍：整句瞬间出现，从 1.3 倍急速缩回 + 模糊消散；之后极缓慢推近
-      const ap = V.prog(t, A_HIT, 0.015);
+      aLine.reveal(t, 83.93, { stagger: 0.035, dur: 0.32, blur: 9, dy: 6 });
+      // 重拍：整句瞬间出现（参考首帧清晰但只有约一半亮度、放大约 1.35 倍），约 3 帧内亮度补满并急速缩回；之后极缓慢推近
+      const ap = t < A_HIT ? 0 : 0.5 + 0.5 * V.prog(t, A_HIT, 0.08);
       const zp = V.ep(t, A_HIT, 0.16, E.outCubic);
       const push = 1 + 0.018 * V.ep(t, A_HIT + 0.2, 2.6, E.outSine);
-      V.set(aBig.el, { o: ap, s: V.lerp(1.3, 1, zp) * push, blur: (1 - zp) * 9 });
+      V.set(aBig.el, { o: ap, s: V.lerp(1.4, 1, zp) * push, blur: (1 - zp) * 3 });
       // 重拍瞬间的辉光爆亮，随后回落
       const gl = 1 - V.ep(t, A_HIT + 0.05, 0.9, E.outCubic);
       if (aBig._gl !== gl) {
@@ -124,7 +129,7 @@
       // 镜头轻微震动（参考 85.03–85.2）
       const u = t - (A_HIT - 0.01);
       const sh = u > 0 ? Math.exp(-u * 16) : 0;
-      const k = exitGroup(aWrap, t, A_OUT, 0.3);
+      const k = exitGroup(aWrap, t, A_OUT, 0.38);
       if (k <= 0) V.set(aWrap, { x: sh * 5 * Math.sin(u * 55), y: sh * 4 * Math.sin(u * 47 + 1.2) });
     },
   });
@@ -133,8 +138,8 @@
    * B：计时环 00:00 → 05:00  88.1 – 92.15
    * ===================================================================== */
   const RC = { x: 427, y: 373, r: 149 };
-  const B_CNT0 = 88.62, B_CNT1 = 91.45, B_OUT = 91.84, B_TOTAL = 300; // 5 分钟
-  let bWrap, bSvg, bTrack, bArcG, bArc, bHead, bTime, bDigits, bTitle, bSub, bFoot, bGlow;
+  const B_CNT0 = 88.62, B_CNT1 = 91.45, B_OUT = 91.77, B_TOTAL = 300; // 5 分钟
+  let bWrap, bSvg, bTrack, bArcG, bArc, bHead, bTime, bDigits, bTitle, bSub, bFoot, bSrc, bGlow;
   V.addScene({
     id: 'c05-b', start: 88.1, end: 92.15,
     build(root) {
@@ -157,7 +162,8 @@
       }
       bTitle = new V.Text(bWrap, '只动 5 分钟', { cls: 'serif c05-white', x: 668, y: 326, anchor: 'l', style: { fontSize: '56px', letterSpacing: '.01em' } });
       bSub = new V.Text(bWrap, '不求做完 · 不求做好 · 先让身体醒过来', { cls: 'c05-grey', x: 669, y: 398, anchor: 'l', style: { fontSize: '21px', letterSpacing: '.05em' } });
-      bFoot = new V.Text(bWrap, '研究：低强度运动 6 周，疲劳感下降 <g>65%</g>', { cls: 'c05-foot', x: 669, y: 445, anchor: 'l', style: { fontSize: '16px', color: '#85847b' } });
+      bFoot = new V.Text(bWrap, '研究：低强度运动 6 周，疲劳感下降约 <g>65%</g>', { cls: 'c05-foot', x: 669, y: 445, anchor: 'l', style: { fontSize: '16px', color: '#85847b' } });
+      bSrc = new V.Text(bWrap, '佐治亚大学 2008 · 36 名久坐、常感疲劳的年轻人 · 每周 3 次 × 20 分钟', { cls: 'c05-src', x: 670, y: 470, anchor: 'l', style: { fontSize: '12.5px' } });
     },
     update(lt, t) {
       // 入场：数字模糊淡入，顶部光点，轨道环
@@ -184,46 +190,47 @@
       // 右侧文字
       bTitle.reveal(t, 88.7, { stagger: 0.065, dur: 0.36, blur: 12, dy: 6 });
       bSub.reveal(t, 89.38, { stagger: 0.03, dur: 0.4, blur: 8, dy: 5 });
-      bFoot.reveal(t, 90.15, { stagger: 0.022, dur: 0.38, blur: 6, dy: 4 });
+      bFoot.reveal(t, 90.0, { stagger: 0.018, dur: 0.38, blur: 6, dy: 4 });
+      bSrc.reveal(t, 90.3, { stagger: 0.008, dur: 0.36, blur: 5, dy: 3 });
 
-      exitGroup(bWrap, t, B_OUT, 0.34);
+      exitGroup(bWrap, t, B_OUT);
     },
   });
 
   /* =====================================================================
-   * C：① 把念头写下来  92.2 – 96.35
+   * C：① 给它一个具体计划  92.2 – 96.35
    * ===================================================================== */
   const PILLS = [
     { text: '没回的消息', x: 425, t: 92.97 },
     { text: '拖着的报告', x: 640, t: 93.2 },
     { text: '该打的电话', x: 855, t: 93.46 },
   ];
-  const C_OUT = 96.0;
+  const C_OUT = 95.96;
   let cWrap, cTitle, cPills = [], cSub, cLine;
   V.addScene({
     id: 'c05-c', start: 92.2, end: 96.35,
     build(root) {
       cWrap = V.el('div', { cls: 'layer', parent: root });
-      cTitle = new V.Text(cWrap, '<b class="c05-num">①</b> 把念头写下来', { cls: 'serif c05-title', x: 640, y: 172 });
+      cTitle = new V.Text(cWrap, '<b class="c05-num">①</b> 给它一个具体计划', { cls: 'serif c05-title', x: 640, y: 172 });
       for (const p of PILLS) {
         const el = V.el('div', { cls: 'c05-pill', text: p.text, parent: cWrap });
         V.place(el, p.x, 300, 'c');
         cPills.push({ el, ...p });
       }
-      cSub = new V.Text(cWrap, '写下来，再定个时间，', { cls: 'c05-grey', x: 640, y: 421, style: { fontSize: '24px' } });
-      cLine = new V.Text(cWrap, '大脑才肯关掉后台。', { cls: 'serif c05-white', x: 640, y: 488, style: { fontSize: '44px', letterSpacing: '.02em' } });
+      cSub = new V.Text(cWrap, '写清：哪天、几点、先做哪一步，', { cls: 'c05-grey', x: 640, y: 421, style: { fontSize: '24px' } });
+      cLine = new V.Text(cWrap, '脑子才更容易把它放下。', { cls: 'serif c05-white', x: 640, y: 488, style: { fontSize: '44px', letterSpacing: '.02em' } });
     },
     update(lt, t) {
-      cTitle.reveal(t, 92.24, { stagger: 0.05, dur: 0.32, blur: 12, dy: 6 });
+      cTitle.reveal(t, 92.24, { stagger: 0.035, dur: 0.32, blur: 12, dy: 6 });
       // 胶囊：从小弹出（带回弹），模糊消散
       for (const p of cPills) {
         const k = V.prog(t, p.t, 0.32);
         const s = V.lerp(0.3, 1, E.outBack(k));
         V.set(p.el, { o: V.clamp(k * 5), s, blur: (1 - V.clamp(k * 2.5)) * 4 });
       }
-      cSub.reveal(t, 94.0, { stagger: 0.027, dur: 0.32, blur: 8, dy: 5 });
-      cLine.reveal(t, 94.45, { stagger: 0.045, dur: 0.32, blur: 12, dy: 7 });
-      exitGroup(cWrap, t, C_OUT, 0.34);
+      cSub.reveal(t, 94.0, { stagger: 0.022, dur: 0.32, blur: 8, dy: 5 });
+      cLine.reveal(t, 94.45, { stagger: 0.036, dur: 0.32, blur: 12, dy: 7 });
+      exitGroup(cWrap, t, C_OUT);
     },
   });
 
@@ -234,8 +241,8 @@
     { x: 373, old: '学习一整晚', neu: '打开书，读一页', tOld: 96.95, tStrike: 97.57, tChev: 97.86, tNew: 97.93 },
     { x: 906, old: '收拾整个房间', neu: '只收拾一个桌角', tOld: 98.12, tStrike: 98.84, tChev: 99.04, tNew: 99.12 },
   ];
-  // 参考实测：100.42 起整屏（含顶部章节标记）上移约 16px 并近似线性淡出，100.75 消失；模糊只在后半段出现
-  const D_OUT = 100.42, D_OUT_DUR = 0.33;
+  // 参考实测：≈100.37 起整屏（含顶部章节标记）上移约 16px 并近似线性淡出，100.72 消失；模糊只在后半段出现
+  const D_OUT = 100.37, D_OUT_DUR = 0.35;
   const dExit = (t) => {
     const p = V.prog(t, D_OUT, D_OUT_DUR);
     return { p, o: 1 - p, y: -16 * E.outCubic(p), blur: 9 * p * p };
@@ -299,7 +306,8 @@
   const RING_IN = 100.75, BURST = 101.963, TRI = 102.34, END_OUT = 109.78;
   const dotAng = (t) => 228 + 520 * (t - 101.0); // 度，顶部为 0，顺时针（参考实测 ≈520°/s）
   const NDASH = 26;
-  let fWrap, eGlow, eSvg, eRingG, eRing, eDot, eDashG, dashes = [], triG, tri, fL1, fL2, fFoot;
+  const RING_GLOW = 'drop-shadow(0 0 5px rgba(255,40,45,.9)) drop-shadow(0 0 16px rgba(255,40,45,.42))';
+  let fWrap, eGlow, eSvg, eRingG, eRing, eDot, eDashG, dashes = [], triG, tri, fL1, fL2, fFoot, fNote;
   V.addScene({
     id: 'c05-ef', start: 100.7, end: 110.2,
     build(root) {
@@ -307,8 +315,8 @@
       eGlow = V.el('div', { parent: fWrap, style: { position: 'absolute', left: EC.x - 260 + 'px', top: EC.y - 260 + 'px', width: '520px', height: '520px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(255,40,50,.09) 0%, rgba(255,40,50,.045) 40%, rgba(255,40,50,0) 70%)', opacity: 0 } });
       eSvg = V.svgLayer(fWrap);
       eRingG = V.svg('g', {}, eSvg);
-      eRingG.style.filter = 'drop-shadow(0 0 6px rgba(255,40,45,.9))';
-      eRing = V.svg('circle', { cx: EC.x, cy: EC.y, r: EC.r, fill: 'none', stroke: '#ff3236', 'stroke-width': 4.5 }, eRingG);
+      eRingG.style.filter = RING_GLOW;
+      eRing = V.svg('circle', { cx: EC.x, cy: EC.y, r: EC.r, fill: 'none', stroke: '#ff3438', 'stroke-width': 6 }, eRingG);
       eDot = V.svg('circle', { cx: EC.x, cy: EC.y - EC.r, r: 7.5, fill: '#ffffff' }, eSvg);
       eDot.style.filter = 'drop-shadow(0 0 5px rgba(255,255,255,.9))';
       // 爆散碎片
@@ -321,9 +329,9 @@
           el: V.svg('line', { stroke: '#ff3a3c', 'stroke-width': 5.5, 'stroke-linecap': 'round' }, eDashG),
           a,
           len: 15 + rnd() * 7,
-          v: 250 + rnd() * 420, // 外飞速度 px/s（参考实测中位 ≈450）
-          jit: (rnd() - 0.5) * 44, // 断裂瞬间的径向错位
-          rot0: (rnd() - 0.5) * 1.1, // 断裂瞬间的角度偏差 rad
+          v: 330 + rnd() * 260, // 外飞速度 px/s（参考实测中位 ≈450；碎片基本保持在同一圆周上）
+          jit: (rnd() - 0.5) * 26, // 断裂瞬间的径向错位
+          rot0: (rnd() - 0.5) * 0.7, // 断裂瞬间的角度偏差 rad
           spin: (rnd() - 0.5) * 7, // rad/s
           fade: 0.75 + rnd() * 0.25,
         });
@@ -335,11 +343,12 @@
 
       fL1 = new V.Text(fWrap, '现在，放下手机。', { cls: 'serif c05-white', x: 640, y: 455, style: { fontSize: '44px', letterSpacing: '.03em' } });
       fL2 = new V.Text(fWrap, '站起来，去做那件事的<g>第一步</g>。', { cls: 'serif c05-white', x: 640, y: 535, style: { fontSize: '44px', letterSpacing: '.03em' } });
-      fFoot = new V.Text(fWrap, '让你累的不是事情，是迟迟没开始的念头。', { cls: 'c05-foot', x: 640, y: 632, style: { fontSize: '20px', color: '#85847b' } });
+      fFoot = new V.Text(fWrap, '很多时候，让你累的不是事情本身，而是迟迟没开始的念头。', { cls: 'c05-foot', x: 640, y: 627, style: { fontSize: '20px', color: '#85847b' } });
+      fNote = new V.Text(fWrap, '若长期疲惫、提不起兴趣，请及时就医。', { cls: 'c05-src', x: 640, y: 656, style: { fontSize: '13px' } });
     },
     update(lt, t) {
       /* --- 圆环：整体淡入（略微放大到位）+ 白色光点顺时针绕行 --- */
-      const ri = V.prog(t, RING_IN - 0.01, 0.25); // 参考：约 0.25s 线性淡入
+      const ri = V.prog(t, RING_IN - 0.02, 0.19); // 参考逐帧：100.733 尚无、100.767 约 1/4 亮且发虚，≈100.92 全亮
       const ringOn = t < BURST;
       eRingG.style.display = ringOn ? '' : 'none';
       if (ringOn) {
@@ -348,16 +357,16 @@
         eRingG.setAttribute('opacity', ri.toFixed(3));
         // 参考：圆环先是柔和发虚，约 0.4s 后才完全清晰
         const sharp = V.ep(t, RING_IN, 0.42, E.inOutSine);
-        eRingG.style.filter = (sharp < 0.999 ? `blur(${((1 - sharp) * 3).toFixed(2)}px) ` : '') + 'drop-shadow(0 0 6px rgba(255,40,45,.9))';
+        eRingG.style.filter = (sharp < 0.999 ? `blur(${((1 - sharp) * 3).toFixed(2)}px) ` : '') + RING_GLOW;
       }
       eGlow.style.opacity = (ri * (1 - V.ep(t, BURST + 0.1, 0.8))).toFixed(3);
-      const dotOn = t >= RING_IN + 0.03 && t < BURST - 0.03;
+      const dotOn = t >= RING_IN - 0.015 && t < BURST - 0.03;
       eDot.style.display = dotOn ? '' : 'none';
       if (dotOn) {
         const a = (dotAng(t) * Math.PI) / 180;
         eDot.setAttribute('cx', (EC.x + EC.r * Math.sin(a)).toFixed(2));
         eDot.setAttribute('cy', (EC.y - EC.r * Math.cos(a)).toFixed(2));
-        eDot.setAttribute('opacity', (V.ep(t, RING_IN + 0.03, 0.15) * (1 - V.prog(t, BURST - 0.075, 0.04))).toFixed(3));
+        eDot.setAttribute('opacity', (V.ep(t, RING_IN - 0.015, 0.1) * (1 - V.prog(t, BURST - 0.075, 0.04))).toFixed(3));
       }
 
       /* --- 爆散：圆环断成切线方向的碎片，向外飞散、旋转、变暗 --- */
@@ -394,7 +403,8 @@
       /* --- 结语 --- */
       fL1.reveal(t, 103.1, { stagger: 0.07, dur: 0.4, blur: 12, dy: 7 });
       fL2.reveal(t, 104.38, { stagger: 0.062, dur: 0.4, blur: 12, dy: 7 });
-      fFoot.reveal(t, 106.35, { stagger: 0.035, dur: 0.42, blur: 8, dy: 5 });
+      fFoot.reveal(t, 106.35, { stagger: 0.028, dur: 0.42, blur: 8, dy: 5 });
+      fNote.reveal(t, 107.1, { stagger: 0.018, dur: 0.4, blur: 6, dy: 3 });
 
       // 片尾：参考在 ≈109.75 前保持清晰，之后整体模糊 + 变暗（变暗主要由引擎的整屏淡出到黑完成）
       const k = V.ep(t, END_OUT, 0.38, E.inOutSine);

@@ -2,18 +2,18 @@
  *
  * 时间轴（与参考视频「杏仁核劫持」同一时刻对齐）：
  *  35.55  章节开场：画面中央一团暗红辉光升起又退去
- *  36.25  红点（节能本能）模糊→清晰；36.52 标签逐字；36.7 外环扩开；36.86 小字
+ *  36.25  红点（省力本能）模糊→清晰；36.52 标签逐字；36.7 外环扩开；36.86 小字
  *  37.12  荧光绿点（前额叶）模糊→清晰，37.28 外环；37.52 标签；37.95 小字；37.6 两点之间虚线连起
- *  38.44  文案①「每次想起身，」→ 38.64「两个你都在拔河。」
+ *  38.44  文案①「想起身时，」→ 38.64「两个你在拔河。」
  *  41.12  文案①模糊淡出，41.26 两点标签随后淡出
- *  41.42  文案②「越是疲惫，」→ 41.72「本能越占上风。」（本能=红，42.22 重音）
+ *  41.42  文案②「越是疲惫，」→ 41.72「本能越容易赢。」（本能=红，42.22 重音）
  *  41.80  红点持续膨胀、绿点缩小变暗；42.22 起每拍一圈涟漪向外扩散
  *  43.76  硬切：全屏红色警报 + 横向故障条 + RGB 分离抖动「别动！」；43.87 起每 5 帧一次频闪（同参考）
  *  44.81  追加「省电！」→「别动！省电！」，按拍抖动
  *  46.23 – 46.76  红色阶梯式退去（同频闪节奏），大字变灰并模糊消失
  *  46.72  标题「省电本能」逐字；47.65 红色下划线自左画出
- *  48.14  「节能本能 压过了 前额叶」；49.20「于是，你又躺下了。」；49.90 分隔线 + 50.00 脚注
- *  51.40 – 51.59  整体模糊淡出（ease-in，参考此时仍基本清晰）
+ *  48.14  「省力本能 压过了 前额叶」；49.20「于是，你又躺下了。」；49.60 分隔线 + 49.70 脚注
+ *  51.40 – 51.575  整体模糊淡出（ease-in，最后一帧仅剩约 9%，不跳切）
  */
 (function () {
   const { E } = V;
@@ -26,7 +26,8 @@
   const TAKE_T = 43.76; // 红色警报硬切
   const TAKE2_T = 44.81; // 「省电！」追加
   const TITLE_T = 46.72;
-  const EXIT_T = 51.40, EXIT_D = 0.19; // 参考 51.43 起才开始变暗变糊；我们需在 51.6 前清空，故用 ease-in 尽量多保留画面
+  const FOOT_T = V.beat(106); // ≈49.70 脚注（「于是，你又躺下了。」49.78 出齐之后）
+  const EXIT_T = 51.40, EXIT_D = 0.175; // 参考 51.5 仍清晰、51.5 起才淡出并越过 51.6；我们须在 51.6 前清空：ease-in，最后一帧(51.567)仅剩约 9%，切到下一章时不跳
   const GROW_T = 41.8; // 红点开始膨胀（参考：41.8 → 43.6 近似匀速变大）
   const GROW_D = 1.8;
   const KICK_T = 42.22; // 「本能」重音（≈第 90 拍）
@@ -37,13 +38,13 @@
   .c02-layer { position:absolute; inset:0; }
   .c02-dot { position:absolute; border-radius:50%; }
   .c02-dot.red { background:radial-gradient(circle at 50% 50%, #ff4a3e 0%, #ff3a31 62%, #f2332c 100%);
-    box-shadow:0 0 14px rgba(255,52,42,.85), 0 0 34px rgba(255,40,40,.45); }
+    box-shadow:0 0 18px rgba(255,52,42,.95), 0 0 46px rgba(255,40,40,.6); }
   .c02-dot.lime { background:radial-gradient(circle at 50% 50%, #ddff4a 0%, #d2fb3c 62%, #c4ef34 100%);
-    box-shadow:0 0 14px rgba(210,250,60,.7), 0 0 34px rgba(200,245,60,.32); }
+    box-shadow:0 0 18px rgba(210,250,60,.85), 0 0 42px rgba(200,245,60,.42); }
   .c02-halo { position:absolute; border-radius:50%; }
   /* closest-side：辉光半径 = 元素半径（参考里是贴着圆点的一团光，而不是半屏的泛光） */
   .c02-halo.red { background:radial-gradient(circle closest-side, rgba(255,40,36,.36) 0%, rgba(225,30,30,.22) 30%, rgba(185,20,24,.09) 62%, rgba(180,20,24,0) 100%); }
-  .c02-halo.lime { background:radial-gradient(circle closest-side, rgba(205,245,60,.30) 0%, rgba(178,218,50,.18) 30%, rgba(140,170,40,.065) 62%, rgba(140,170,40,0) 100%); }
+  .c02-halo.lime { background:radial-gradient(circle closest-side, rgba(205,245,60,.40) 0%, rgba(178,218,50,.25) 30%, rgba(140,170,40,.08) 62%, rgba(140,170,40,0) 100%); }
   .c02-wash { position:absolute; inset:0; background:radial-gradient(ellipse 62% 78% at 50% 48%, rgba(120,30,36,.17) 0%, rgba(100,24,32,.11) 45%, rgba(70,14,24,0) 100%); }
   .c02-bloom { position:absolute; inset:0; background:radial-gradient(ellipse 42% 48% at 50% 47%, rgba(140,24,26,.24) 0%, rgba(120,20,22,.09) 50%, rgba(120,20,22,0) 100%); }
   .c02-lab { font-size:36px; letter-spacing:.02em; color:#f4f0ea; text-shadow:0 0 14px rgba(255,245,235,.18); }
@@ -82,8 +83,7 @@
   .c02-l2 .c02-mid { color:#a59d99; }
   .c02-l2 .w { color:#f4efe9; }
   .c02-l3 { font-size:24px; color:#958f8a; font-weight:500; letter-spacing:.05em; }
-  .c02-foot { font-size:16px; color:#6b6661; font-weight:500; letter-spacing:.08em; }
-  .c02-foot .c02-num { color:#c9c2bb; }
+  .c02-foot { font-size:16px; color:#857f79; font-weight:500; letter-spacing:.05em; }
   .c02-fline { position:absolute; height:1px; background:linear-gradient(to right, rgba(140,130,125,0), rgba(140,130,125,.45), rgba(140,130,125,0)); }
   `;
   V.el('style', { text: css, parent: document.head });
@@ -121,15 +121,15 @@
       A.rDot = mk('c02-dot red', DOT_R * 2, RX, DY);
       A.lDot = mk('c02-dot lime', DOT_R * 2, LX, DY);
 
-      A.rLab = new V.Text(A.wrap, '节能本能', { cls: 'serif c02-lab', x: RX, y: 430 });
-      A.rSub = new V.Text(A.wrap, '演化留下的默认设置', { cls: 'c02-sub', x: RX, y: 471 });
+      A.rLab = new V.Text(A.wrap, '省力本能', { cls: 'serif c02-lab', x: RX, y: 430 });
+      A.rSub = new V.Text(A.wrap, '演化留下的默认倾向', { cls: 'c02-sub', x: RX, y: 471 });
       A.lLab = new V.Text(A.wrap, '前额叶', { cls: 'serif c02-lab lime', x: LX, y: 430 });
-      A.lSub = new V.Text(A.wrap, '负责计划和行动', { cls: 'c02-sub', x: LX, y: 471 });
+      A.lSub = new V.Text(A.wrap, '负责计划和自控', { cls: 'c02-sub', x: LX, y: 471 });
 
-      A.c1a = new V.Text(A.wrap, '每次想起身，', { cls: 'c02-cap1', x: 640, y: 574 });
-      A.c1b = new V.Text(A.wrap, '两个你都在拔河。', { cls: 'serif c02-cap2', x: 640, y: 631 });
+      A.c1a = new V.Text(A.wrap, '想起身时，', { cls: 'c02-cap1', x: 640, y: 574 });
+      A.c1b = new V.Text(A.wrap, '两个你在拔河。', { cls: 'serif c02-cap2', x: 640, y: 631 });
       A.c2a = new V.Text(A.wrap, '越是疲惫，', { cls: 'c02-cap1', x: 640, y: 574 });
-      A.c2b = new V.Text(A.wrap, '<r>本能</r>越占上风。', { cls: 'serif c02-cap2', x: 640, y: 631 });
+      A.c2b = new V.Text(A.wrap, '<r>本能</r>越容易赢。', { cls: 'serif c02-cap2', x: 640, y: 631 });
       A.instinct = A.c2b.el.querySelector('.r');
       A.instinct.style.display = 'inline-block';
     },
@@ -354,11 +354,11 @@
       C.wrap = V.el('div', { cls: 'c02-layer', parent: root });
       C.title = new V.Text(C.wrap, '省电本能', { cls: 'serif c02-title', x: 640, y: 286 });
       C.uline = V.el('div', { cls: 'c02-uline', parent: C.wrap });
-      C.l2 = new V.Text(C.wrap, '<r>节能本能</r> <d class="c02-mid">压过了</d> <w>前额叶</w>', { cls: 'c02-l2', x: 640, y: 428 });
+      C.l2 = new V.Text(C.wrap, '<r>省力本能</r> <d class="c02-mid">压过了</d> <w>前额叶</w>', { cls: 'c02-l2', x: 640, y: 428 });
       for (const c of C.l2.chars) if (c.textContent === ' ') c.style.width = '17px'; // 词间留白与参考一致
       C.l3 = new V.Text(C.wrap, '于是，你又躺下了。', { cls: 'c02-l3', x: 640, y: 494 });
       C.fline = V.el('div', { cls: 'c02-fline', parent: C.wrap });
-      C.foot = new V.Text(C.wrap, '大脑只占体重的 <w class="c02-num">2%</w>，却消耗约 <w class="c02-num">20%</w> 的能量。', { cls: 'c02-foot', x: 640, y: 600 });
+      C.foot = new V.Text(C.wrap, '脑电实验发现：躲开「躺着」的画面，比躲开「运动」的画面更费脑力。', { cls: 'c02-foot', x: 644, y: 600 });
     },
     update(lt, t) {
       if (C.title.el.offsetWidth !== C.uw) { // 字体加载前后字宽不同：宽度变化时重新排版
@@ -378,8 +378,8 @@
       C.uline.style.opacity = up > 0.001 ? 1 : 0;
       C.l2.reveal(t, 48.14, { stagger: 0.045, dur: 0.32, blur: 9, dy: 6 }); // 参考首字 ≈48.15
       C.l3.reveal(t, 49.2, { stagger: 0.032, dur: 0.32, blur: 8, dy: 5 });
-      C.foot.reveal(t, 50.0, { stagger: 0.022, dur: 0.32, blur: 6, dy: 4 });
-      const fl = V.ep(t, 49.9, 0.6, E.inOutCubic);
+      C.foot.reveal(t, FOOT_T, { stagger: 0.014, dur: 0.32, blur: 6, dy: 4 }); // 32 字：提早到第 106 拍并加快逐字节奏，保证退场前约 1 秒可读
+      const fl = V.ep(t, FOOT_T - 0.1, 0.6, E.inOutCubic);
       C.fline.style.opacity = (fl * 0.9).toFixed(3);
       C.fline.style.transform = `scaleX(${fl.toFixed(4)})`;
 
