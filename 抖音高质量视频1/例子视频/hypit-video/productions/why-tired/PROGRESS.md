@@ -1,7 +1,11 @@
 # Progress
 
-**现在**：全片最终渲染（`runs/final.svrun` → `final.video`，3900 帧，1920×1080，配乐《运气的形状》BGM）。完成后导出到
-`../../../output/为什么你什么都不干却还是很累.mp4`，逐段抽帧 + 检查音轨，然后交付。
+**现在**：成片已交付——`../../../output/为什么你什么都不干却还是很累.mp4`（Build `bld_20261007T110149916Z_44E5E20486`，`final.video`）。
+1920×1080，30fps，3900 帧，130.0s，H.264 2.6 Mbps + AAC 48k 立体声；音轨与 BGM 源文件 0 ms 偏移，片尾 1s 淡出。
+已抽帧核对：17.0s 第一个 drop、87.2s 弱拍段起点（旧观念划掉）、93.6s 第二个 drop（「先动起来。」）、129.95s 黑场。
+
+**若要修改**：改 `packages/kinetic-explainer/web/` → `npm --prefix packages/kinetic-explainer run build` →
+`tools/hypit.sh build productions/why-tired/runs/final.svrun --title <名字> --follow` → `tools/hypit.sh get <build-id> --output final.video --to <路径>`。
 
 **已完成**
 - Hypit 0.2.17 安装为项目依赖；Skill 部署在 `~/.claude/skills/hypit`（→ `../../../tools/hypit/skills/hypit`）。
@@ -15,8 +19,3 @@
   - drop 后在 5 处静止停留共放慢 +14 拍，片尾整体淡出到 130.0s。
   静止度依据：`build/static` 逐拍帧差（S = 仅剩胶片颗粒的变化）。
 - 开场试渲染 Build `bld_20261007T092208568Z_866808B4FA`（旧配乐时的 0–16.5s）验证了字体、程序与混音链路。
-
-**下一步**
-1. 等最终 Build 完成：`tools/hypit.sh status <build-id>`；
-2. `tools/hypit.sh get <build-id> --output final.video --to ../output/为什么你什么都不干却还是很累.mp4`；
-3. 看成片：每 5s 抽帧、drop 处对齐、音轨时长与淡出。
